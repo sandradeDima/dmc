@@ -351,7 +351,7 @@ export default function SoportePageContent() {
                   </p>
                 ) : null}
 
-                <div className="mt-4 max-h-[320px] flex-1 space-y-2.5 overflow-y-auto pb-1 pr-1 lg:max-h-none lg:min-h-0">
+                <div className="mt-4 max-h-[320px] flex-1 space-y-2.5 overflow-y-auto pb-1 pr-1 lg:max-h-[520px] xl:max-h-[560px]">
                   {isLoadingBrands
                     ? Array.from({ length: 8 }).map((_, index) => (
                         <BrandSelectorSkeleton key={index} index={index} />
