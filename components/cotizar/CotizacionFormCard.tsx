@@ -8,6 +8,7 @@ type CotizacionPerfil = "corporativa_personal" | "distribucion";
 type CotizacionFormValues = {
   nombre_apellido: string;
   telefono: string;
+  email: string;
   ciudad: string;
   cliente_exterior: boolean;
   perfil: CotizacionPerfil | "";
@@ -19,6 +20,7 @@ type FormErrors = Partial<Record<keyof CotizacionFormValues, string>>;
 const INITIAL_VALUES: CotizacionFormValues = {
   nombre_apellido: "",
   telefono: "",
+  email: "",
   ciudad: "",
   cliente_exterior: false,
   perfil: "",
@@ -39,6 +41,10 @@ const CITY_OPTIONS = [
 
 function sanitizePhoneInput(value: string): string {
   return value.replace(/[^\d+\-\s()]/g, "");
+}
+
+function isValidEmail(value: string): boolean {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim());
 }
 
 function validateForm(values: CotizacionFormValues): FormErrors {
@@ -62,6 +68,10 @@ function validateForm(values: CotizacionFormValues): FormErrors {
 
   if (!values.perfil) {
     errors.perfil = "Selecciona un perfil de compra.";
+  }
+
+  if (!isValidEmail(values.email)) {
+    errors.email = "Ingresa un correo válido.";
   }
 
   return errors;
@@ -142,6 +152,7 @@ export default function CotizacionFormCard({ embedded = false }: CotizacionFormC
       await postCotizacion({
         nombre_completo: values.nombre_apellido.trim(),
         telefono: values.telefono.trim(),
+        email: values.email.trim(),
         ciudad: values.cliente_exterior ? "" : values.ciudad,
         es_cliente_exterior: values.cliente_exterior,
         tipo_cotizacion: values.perfil as CotizacionPerfil,
@@ -220,6 +231,28 @@ export default function CotizacionFormCard({ embedded = false }: CotizacionFormC
           />
           {errors.telefono ? (
             <p className="mt-1 text-[12px] text-[#D33E2B]">{errors.telefono}</p>
+          ) : null}
+        </div>
+
+        <div>
+          <label
+            htmlFor="email"
+            className="mb-1 block text-[12px] font-medium text-[#4F5965] sm:text-[13px]"
+          >
+            Mail*
+          </label>
+          <input
+            id="email"
+            type="email"
+            value={values.email}
+            onChange={(event) => updateField("email", event.target.value)}
+            required
+            className="h-10 w-full rounded-[12px] border border-transparent bg-white px-3.5 text-[13px] text-[#334155] outline-none transition focus:border-[#F54029]/50"
+            placeholder="correo@ejemplo.com"
+            autoComplete="email"
+          />
+          {errors.email ? (
+            <p className="mt-1 text-[12px] text-[#D33E2B]">{errors.email}</p>
           ) : null}
         </div>
 

@@ -515,6 +515,7 @@ export type SoporteResponse = {
 export type CotizacionPayload = {
   nombre_completo: string;
   telefono: string;
+  email: string;
   ciudad: string;
   es_cliente_exterior: boolean;
   tipo_cotizacion: "corporativa_personal" | "distribucion";
@@ -525,6 +526,7 @@ export type CotizacionResponse = {
   id: number;
   nombre_completo: string;
   telefono: string;
+  email?: string | null;
   ciudad: string;
   es_cliente_exterior: boolean;
   tipo_cotizacion: "corporativa_personal" | "distribucion";
