@@ -20,12 +20,15 @@ export default function RelatedProductCard({ product }: RelatedProductCardProps)
 
   return (
     <article className="flex h-full min-h-[398px] w-full max-w-[310px] flex-col overflow-hidden rounded-[24px] bg-white shadow-[0_10px_26px_rgba(15,23,42,0.12)] ring-1 ring-slate-200/70">
-      <Link href={href} className="group block h-[260px] w-full overflow-hidden">
+      <Link
+        href={href}
+        className="group block h-[260px] w-full overflow-hidden bg-[#F5F7FA] p-3"
+      >
         <img
           src={resolvedImageUrl}
           alt={altText}
           title={titleText}
-          className="h-full w-full object-cover transition-transform duration-300 ease-out group-hover:scale-110"
+          className="h-full w-full object-contain transition-transform duration-300 ease-out group-hover:scale-110"
           loading="lazy"
         />
       </Link>

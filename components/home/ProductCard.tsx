@@ -39,13 +39,16 @@ export default function ProductCard({ product }: ProductCardProps) {
 
   return (
     <article className="flex h-[402px] w-[294px] shrink-0 flex-col overflow-hidden rounded-[36px] bg-white shadow-[0_8px_22px_rgba(15,23,42,0.12)] ring-1 ring-slate-200/70">
-      <Link href={productHref} className="group block h-[267px] w-[294px] overflow-hidden">
+      <Link
+        href={productHref}
+        className="group block h-[267px] w-[294px] overflow-hidden bg-[#F5F7FA] p-3"
+      >
         {imageUrl ? (
           <img
             src={imageUrl}
             alt={altText}
             title={titleText}
-            className="h-full w-full object-cover transition-transform duration-300 ease-out group-hover:scale-105"
+            className="h-full w-full object-contain transition-transform duration-300 ease-out group-hover:scale-105"
             loading="lazy"
           />
         ) : (

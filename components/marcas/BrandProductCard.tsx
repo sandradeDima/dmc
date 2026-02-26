@@ -19,13 +19,16 @@ export default function BrandProductCard({ product }: BrandProductCardProps) {
 
   return (
     <article className="flex h-full min-h-[402px] w-full max-w-[310px] flex-col overflow-hidden rounded-[24px] bg-white shadow-[0_10px_26px_rgba(15,23,42,0.12)] ring-1 ring-slate-200/70">
-      <Link href={productHref} className="group block h-[230px] w-full overflow-hidden">
+      <Link
+        href={productHref}
+        className="group block h-[230px] w-full overflow-hidden bg-[#F5F7FA] p-3"
+      >
         {imageUrl ? (
           <img
             src={imageUrl}
             alt={altText}
             title={titleText}
-            className="h-full w-full object-cover transition-transform duration-300 ease-out group-hover:scale-105"
+            className="h-full w-full object-contain transition-transform duration-300 ease-out group-hover:scale-105"
             loading="lazy"
           />
         ) : (

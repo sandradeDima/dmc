@@ -278,7 +278,7 @@ export default function ProductoDetailPage({ slug }: ProductoDetailPageProps) {
                           key={image.key}
                           type="button"
                           onClick={() => setSelectedImagePath(image.path)}
-                          className={`h-16 w-16 shrink-0 overflow-hidden rounded-[10px] border transition ${
+                          className={`h-16 w-16 shrink-0 overflow-hidden rounded-[10px] border bg-white p-1 transition ${
                             isActive
                               ? "border-[#F54029] shadow-[0_0_0_2px_rgba(245,64,41,0.25)]"
                               : "border-slate-200 hover:border-slate-300"
@@ -289,7 +289,7 @@ export default function ProductoDetailPage({ slug }: ProductoDetailPageProps) {
                             src={thumbSrc}
                             alt={image.alt}
                             title={image.title}
-                            className="h-full w-full object-cover"
+                            className="h-full w-full object-contain"
                             loading="lazy"
                           />
                         </button>
@@ -301,19 +301,19 @@ export default function ProductoDetailPage({ slug }: ProductoDetailPageProps) {
                         src={fallbackImageUrl}
                         alt={selectedImageAlt}
                         title={selectedImageTitle}
-                        className="h-full w-full object-cover"
+                        className="h-full w-full object-contain"
                         loading="lazy"
                       />
                     </div>
                   )}
                 </div>
 
-                <div className="group overflow-hidden rounded-[20px] bg-white/80">
+                <div className="group overflow-hidden rounded-[20px] bg-white/80 p-3">
                   <img
                     src={selectedImageUrl}
                     alt={selectedImageAlt}
                     title={selectedImageTitle}
-                    className="h-[300px] w-full object-cover transition-transform duration-300 ease-out group-hover:scale-105 sm:h-[380px] lg:h-[430px]"
+                    className="h-[300px] w-full object-contain transition-transform duration-300 ease-out group-hover:scale-105 sm:h-[380px] lg:h-[430px]"
                     loading="lazy"
                   />
                 </div>
