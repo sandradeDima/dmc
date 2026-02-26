@@ -215,7 +215,7 @@ export default function ChatWidget() {
   }, [initializeChat, isOpen]);
 
   useEffect(() => {
-    if (!isOpen || mode !== "operador" || !conversacionId) {
+    if (!isOpen || mode !== "operador" || !token || !conversacionId) {
       setRealtimeActive(false);
       return;
     }

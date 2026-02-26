@@ -72,13 +72,21 @@ export function ensureChatEcho(chatToken?: string | null): RealtimeInitResult {
     };
   }
 
+  const token = chatToken?.trim() || null;
+  if (!token) {
+    return {
+      ready: false,
+      reason:
+        "No existe token de chat para autorizar el canal privado. Realtime continuará en modo API.",
+    };
+  }
+
   const cluster = process.env.NEXT_PUBLIC_PUSHER_APP_CLUSTER?.trim() || "mt1";
   const wsHost = process.env.NEXT_PUBLIC_PUSHER_HOST?.trim() || undefined;
   const wsPort = parsePort(process.env.NEXT_PUBLIC_PUSHER_PORT);
   const wssPort = parsePort(process.env.NEXT_PUBLIC_PUSHER_WSS_PORT);
   const forceTLS = parseBoolean(process.env.NEXT_PUBLIC_PUSHER_FORCE_TLS, true);
   const authEndpoint = resolveAuthEndpoint();
-  const token = chatToken?.trim() || null;
 
   const signature = JSON.stringify({
     appKey,
