@@ -19,6 +19,7 @@ type FooterContactInfoProps = {
 type ContactRowProps = {
   icon: ReactNode;
   text: string;
+  href?: string;
 };
 
 function MapPinIcon({ className = "" }: { className?: string }) {
@@ -205,11 +206,20 @@ function renderSocialFallbackIcon(name: string, className: string) {
   return <GlobeIcon className={className} />;
 }
 
-function ContactRow({ icon, text }: ContactRowProps) {
+function ContactRow({ icon, text, href }: ContactRowProps) {
   return (
     <div className="flex items-start justify-center gap-3 text-left text-white/90 lg:justify-start">
       <span className="mt-0.5 shrink-0 text-white/85">{icon}</span>
-      <p className="text-[14px] leading-relaxed sm:text-[15px]">{text}</p>
+      {href ? (
+        <a
+          href={href}
+          className="text-[14px] leading-relaxed transition-colors hover:text-[#F54029] sm:text-[15px]"
+        >
+          {text}
+        </a>
+      ) : (
+        <p className="text-[14px] leading-relaxed sm:text-[15px]">{text}</p>
+      )}
     </div>
   );
 }
@@ -279,6 +289,7 @@ export default function FooterContactInfo({
       key: "correo",
       text: informacion?.correo?.trim() || "",
       icon: <MailIcon className="h-5 w-5" />,
+      href: informacion?.correo?.trim() ? `mailto:${informacion.correo.trim()}` : undefined,
     },
   ].filter((row) => row.text.length > 0);
 

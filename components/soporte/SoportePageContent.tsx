@@ -1,7 +1,7 @@
 "use client";
 
 /* eslint-disable @next/next/no-img-element */
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   getInformacion,
   getMarcasList,
@@ -207,6 +207,16 @@ export default function SoportePageContent() {
     type: "success" | "error";
     message: string;
   } | null>(null);
+  const feedbackRef = useRef<HTMLParagraphElement | null>(null);
+
+  useEffect(() => {
+    if (!feedback) return;
+
+    feedbackRef.current?.scrollIntoView({
+      behavior: "smooth",
+      block: "center",
+    });
+  }, [feedback]);
 
   useEffect(() => {
     let isCancelled = false;
@@ -471,11 +481,11 @@ export default function SoportePageContent() {
                     noValidate
                     className="h-full rounded-[22px] bg-white p-4 shadow-[0_10px_24px_rgba(15,23,42,0.08)] sm:p-5"
                   >
-                    <h4 className="text-[22px] font-semibold leading-none text-[#2F3B52]">
+                    <h4 className="text-[20px] font-semibold leading-none text-[#2F3B52]">
                       Formulario de soporte
                     </h4>
 
-                    <div className="mt-4 space-y-3">
+                    <div className="mt-3 space-y-2.5">
                       <div>
                         <label
                           htmlFor="soporte_nombre"
@@ -558,7 +568,7 @@ export default function SoportePageContent() {
                           id="soporte_mensaje"
                           value={values.mensaje}
                           onChange={(event) => updateField("mensaje", event.target.value)}
-                          className="min-h-[110px] w-full resize-y rounded-[12px] border border-transparent bg-[#F5F7FA] px-3.5 py-2.5 text-[14px] text-[#334155] outline-none transition focus:border-[#F54029]/55"
+                          className="min-h-[96px] w-full resize-y rounded-[12px] border border-transparent bg-[#F5F7FA] px-3.5 py-2.5 text-[14px] text-[#334155] outline-none transition focus:border-[#F54029]/55"
                           placeholder="Describe tu consulta de soporte"
                         />
                         {errors.mensaje ? (
@@ -569,13 +579,14 @@ export default function SoportePageContent() {
                       <button
                         type="submit"
                         disabled={isSubmitting || !selectedBrand || hasBrandError}
-                        className="inline-flex h-11 w-full items-center justify-center rounded-full border border-[#F54029] bg-white px-4 text-[15px] font-semibold text-[#F54029] transition hover:bg-[#F54029] hover:text-white disabled:cursor-not-allowed disabled:opacity-55"
+                        className="inline-flex h-10 w-full items-center justify-center rounded-full border border-[#F54029] bg-white px-4 text-[15px] font-semibold text-[#F54029] transition hover:bg-[#F54029] hover:text-white disabled:cursor-not-allowed disabled:opacity-55"
                       >
                         {isSubmitting ? "Enviando..." : "Enviar"}
                       </button>
 
                       {feedback ? (
                         <p
+                          ref={feedbackRef}
                           className={`text-center text-[13px] font-medium ${
                             feedback.type === "success" ? "text-[#2E7D32]" : "text-[#D33E2B]"
                           }`}

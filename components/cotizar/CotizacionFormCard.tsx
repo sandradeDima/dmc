@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { postCotizacion } from "@/lib/api";
 
 type CotizacionPerfil = "corporativa_personal" | "distribucion";
@@ -79,8 +79,18 @@ export default function CotizacionFormCard({ embedded = false }: CotizacionFormC
     type: "success" | "error";
     message: string;
   } | null>(null);
+  const feedbackRef = useRef<HTMLParagraphElement | null>(null);
 
   const hasErrors = useMemo(() => Object.keys(errors).length > 0, [errors]);
+
+  useEffect(() => {
+    if (!feedback) return;
+
+    feedbackRef.current?.scrollIntoView({
+      behavior: "smooth",
+      block: "center",
+    });
+  }, [feedback]);
 
   const updateField = <K extends keyof CotizacionFormValues>(
     key: K,
@@ -158,15 +168,15 @@ export default function CotizacionFormCard({ embedded = false }: CotizacionFormC
     <div
       className={`${
         embedded
-          ? "h-full rounded-[22px] bg-transparent p-0 shadow-none"
+          ? "rounded-[20px] bg-transparent p-0 shadow-none"
           : "rounded-[30px] bg-[#DDE0E8] p-6 shadow-[0_16px_36px_rgba(15,23,42,0.12)] sm:p-8"
       }`}
     >
-      <h2 className="text-center text-[24px] font-semibold leading-none text-[#2F3B52] sm:text-[28px]">
+      <h2 className="text-center text-[22px] font-semibold leading-none text-[#2F3B52] sm:text-[25px]">
         Formulario
       </h2>
 
-      <form className="mt-4 space-y-3" onSubmit={handleSubmit} noValidate>
+      <form className="mt-3 space-y-2.5" onSubmit={handleSubmit} noValidate>
         <div>
           <label
             htmlFor="nombre_apellido"
@@ -242,7 +252,7 @@ export default function CotizacionFormCard({ embedded = false }: CotizacionFormC
           ) : null}
         </div>
 
-        <div className="rounded-[12px] bg-white px-3 py-2">
+        <div className="rounded-[12px] bg-white px-3 py-1.5">
           <div className="flex items-center justify-between gap-3">
             <p className="text-[12px] font-medium text-[#4F5965] sm:text-[13px]">
               ¿Es cliente del exterior?:*
@@ -288,7 +298,7 @@ export default function CotizacionFormCard({ embedded = false }: CotizacionFormC
             Para brindarte la información adecuada, indícanos tu perfil:*
           </p>
 
-          <fieldset className="rounded-[16px] bg-white px-4 py-3">
+          <fieldset className="rounded-[16px] bg-white px-4 py-2.5">
             <legend className="sr-only">Perfil</legend>
 
             <label className="flex cursor-pointer items-start gap-2 py-1.5 text-[14px] text-[#556070]">
@@ -334,7 +344,7 @@ export default function CotizacionFormCard({ embedded = false }: CotizacionFormC
             id="mensaje"
             value={values.mensaje}
             onChange={(event) => updateField("mensaje", event.target.value)}
-            className="min-h-[82px] w-full resize-y rounded-[12px] border border-transparent bg-white px-3.5 py-2.5 text-[13px] text-[#334155] outline-none transition focus:border-[#F54029]/50"
+            className="min-h-[72px] w-full resize-y rounded-[12px] border border-transparent bg-white px-3.5 py-2.5 text-[13px] text-[#334155] outline-none transition focus:border-[#F54029]/50"
             placeholder="Escribe tu solicitud"
           />
         </div>
@@ -344,7 +354,7 @@ export default function CotizacionFormCard({ embedded = false }: CotizacionFormC
             type="button"
             onClick={handleCancel}
             disabled={isSubmitting}
-            className="inline-flex h-10 flex-1 items-center justify-center rounded-full bg-[#CFD4DD] px-4 text-[14px] font-medium text-[#4F5965] transition hover:bg-[#C6CCD6] disabled:cursor-not-allowed disabled:opacity-55"
+            className="inline-flex h-9 flex-1 items-center justify-center rounded-full bg-[#CFD4DD] px-4 text-[14px] font-medium text-[#4F5965] transition hover:bg-[#C6CCD6] disabled:cursor-not-allowed disabled:opacity-55"
           >
             Cancelar
           </button>
@@ -352,7 +362,7 @@ export default function CotizacionFormCard({ embedded = false }: CotizacionFormC
           <button
             type="submit"
             disabled={isSubmitting}
-            className="inline-flex h-10 flex-1 items-center justify-center rounded-full border border-[#F54029] bg-white px-4 text-[14px] font-semibold text-[#F54029] transition hover:bg-[#F54029] hover:text-white disabled:cursor-not-allowed disabled:opacity-55"
+            className="inline-flex h-9 flex-1 items-center justify-center rounded-full border border-[#F54029] bg-white px-4 text-[14px] font-semibold text-[#F54029] transition hover:bg-[#F54029] hover:text-white disabled:cursor-not-allowed disabled:opacity-55"
           >
             {isSubmitting ? "Enviando..." : "Enviar"}
           </button>
@@ -360,6 +370,7 @@ export default function CotizacionFormCard({ embedded = false }: CotizacionFormC
 
         {feedback ? (
           <p
+            ref={feedbackRef}
             className={`text-center text-[13px] font-medium ${
               feedback.type === "success" ? "text-[#2E7D32]" : "text-[#D33E2B]"
             }`}
