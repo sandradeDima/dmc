@@ -119,7 +119,7 @@ function CategoryCard({ item }: { item: CategoriaItem }) {
 
         <div className="mt-4 flex w-full items-center justify-center">
           <Link
-            href={`/categorias/${item.slug}`}
+            href={`/catalogo?categoria=${item.id}`}
             className="inline-flex h-11 w-full max-w-[210px] items-center justify-center rounded-full border border-[#F54029] px-5 text-sm font-medium text-[#F54029] transition-colors hover:bg-[#F54029] hover:text-white"
           >
             Ver más
