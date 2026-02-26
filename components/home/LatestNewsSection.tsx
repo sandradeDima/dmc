@@ -18,6 +18,8 @@ export type BlogPost = {
   alt_imagen: string | null;
   slug: string;
   fecha_publicacion: string;
+  estado?: string;
+  estado_blog?: string;
   autor: { id?: number; name?: string; email?: string } | string | null;
 };
 
@@ -191,6 +193,13 @@ function NewsCard({ post }: { post: BlogPost }) {
   );
 }
 
+function isPublishedBlogPost(item: BlogPost): boolean {
+  return (
+    item.estado?.toLowerCase() === "activo" &&
+    item.estado_blog?.toLowerCase() === "publicado"
+  );
+}
+
 export default function LatestNewsSection() {
   const [posts, setPosts] = useState<BlogPost[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -244,10 +253,12 @@ export default function LatestNewsSection() {
           return;
         }
 
-        const normalized = payload.data.filter(
-          (item): item is BlogPost =>
-            Boolean(item?.id && item.slug && item.titulo && item.descripcion_corta),
-        );
+        const normalized = payload.data
+          .filter(
+            (item): item is BlogPost =>
+              Boolean(item?.id && item.slug && item.titulo && item.descripcion_corta),
+          )
+          .filter(isPublishedBlogPost);
 
         setPosts(normalized);
         setCurrentPage(0);
