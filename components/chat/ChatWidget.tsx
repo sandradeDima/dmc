@@ -266,6 +266,7 @@ export default function ChatWidget() {
           "[ChatWidget] Error de canal realtime. Se mantiene modo API.",
           realtimeError,
         );
+        setRealtimeActive(false);
       },
     });
 
@@ -281,7 +282,7 @@ export default function ChatWidget() {
   }, [appendMessages, conversacionId, isOpen, mode, token]);
 
   useEffect(() => {
-    if (!isOpen || mode !== "operador" || !token || realtimeActive) {
+    if (!isOpen || mode !== "operador" || !token) {
       return;
     }
 
@@ -319,7 +320,6 @@ export default function ChatWidget() {
     isOpen,
     mode,
     persistToken,
-    realtimeActive,
     token,
   ]);
 
