@@ -3,7 +3,7 @@
 /* eslint-disable @next/next/no-img-element */
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { getInformacion, toPublicStorageUrl } from "@/lib/api";
+import { getBanners, getInformacion, toPublicStorageUrl } from "@/lib/api";
 
 type RawBannerRecord = Record<string, unknown>;
 
@@ -19,46 +19,11 @@ const SWIPE_THRESHOLD_PX = 48;
 const DEFAULT_HOME_HEADER_TEXT =
   "Horem ipsum dolor sit amet, consectetur adipiscing elit.";
 
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === "object" && value !== null;
-}
-
 function asNonEmptyString(value: unknown): string | null {
   if (typeof value !== "string") return null;
   const trimmed = value.trim();
 
   return trimmed.length > 0 ? trimmed : null;
-}
-
-function resolveApiOrigin(): string {
-  const envBase =
-    process.env.NEXT_PUBLIC_DMC_API_BASE_URL ??
-    process.env.NEXT_PUBLIC_API_BASE_URL ??
-    "http://127.0.0.1:8000";
-
-  return envBase.replace(/\/+$/, "").replace(/\/api\/public$/, "");
-}
-
-function normalizeBannerPayload(payload: unknown): RawBannerRecord[] {
-  if (Array.isArray(payload)) {
-    return payload.filter(isRecord);
-  }
-
-  if (!isRecord(payload)) {
-    return [];
-  }
-
-  const topData = payload.data;
-
-  if (Array.isArray(topData)) {
-    return topData.filter(isRecord);
-  }
-
-  if (isRecord(topData) && Array.isArray(topData.data)) {
-    return topData.data.filter(isRecord);
-  }
-
-  return [];
 }
 
 function mapToSlides(items: RawBannerRecord[]): HeroSlide[] {
@@ -95,45 +60,17 @@ function mapToSlides(items: RawBannerRecord[]): HeroSlide[] {
 }
 
 async function fetchHeroSlides(signal: AbortSignal): Promise<HeroSlide[]> {
-  const apiOrigin = resolveApiOrigin();
-  const endpoints = [
-    "/banner",
-    `${apiOrigin}/banner`,
-    `${apiOrigin}/api/public/banner`,
-    `${apiOrigin}/api/public/banners`,
-  ];
-
-  let lastError: Error | null = null;
-
-  for (const endpoint of endpoints) {
-    try {
-      const response = await fetch(endpoint, {
-        method: "GET",
-        headers: { Accept: "application/json" },
-        signal,
-        cache: "no-store",
-      });
-
-      if (!response.ok) {
-        lastError = new Error(
-          `Banner endpoint ${endpoint} returned ${response.status}`,
-        );
-        continue;
-      }
-
-      const payload: unknown = await response.json();
-      const items = normalizeBannerPayload(payload);
-
-      return mapToSlides(items);
-    } catch (error) {
-      if (signal.aborted) {
-        throw error;
-      }
-      lastError = error instanceof Error ? error : new Error("Unknown error");
-    }
+  if (signal.aborted) {
+    throw new Error("Banner request aborted");
   }
 
-  throw lastError ?? new Error("Unable to load banner slides");
+  const items = await getBanners();
+
+  if (signal.aborted) {
+    throw new Error("Banner request aborted");
+  }
+
+  return mapToSlides(items as unknown as RawBannerRecord[]);
 }
 
 function SearchIcon() {
