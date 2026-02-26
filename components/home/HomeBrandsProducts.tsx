@@ -140,7 +140,7 @@ export default function HomeBrandsProducts() {
         />
       )}
 
-      <div className="mx-auto w-full max-w-[1700px] px-8 sm:px-12 lg:px-20 xl:px-24">
+      <div className="mx-auto w-full max-w-[1700px] px-6 sm:px-10 lg:px-16 xl:px-20">
         <HomeProductsSection
           nuevos={nuevos}
           destacados={destacados}

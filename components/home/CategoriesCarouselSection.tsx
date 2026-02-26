@@ -216,7 +216,7 @@ export default function CategoriesCarouselSection() {
   return (
     <section className="bg-white pt-10 pb-24">
       <div className="bg-[#F4F5F7]">
-        <div className="mx-auto w-full max-w-[1700px] px-8 py-8 text-center sm:px-12 lg:px-20 xl:px-24">
+        <div className="mx-auto w-full max-w-[1700px] px-6 py-8 text-center sm:px-10 lg:px-16 xl:px-20">
           <h2 className="text-[36px] font-medium leading-tight text-slate-700">
             Categorías
           </h2>
@@ -228,7 +228,7 @@ export default function CategoriesCarouselSection() {
         </div>
       </div>
 
-      <div className="mx-auto mt-[-25px] w-full max-w-[1700px] px-8 sm:px-12 lg:px-20 xl:px-24">
+      <div className="mx-auto mt-[-12px] w-full max-w-[1700px] px-6 sm:mt-[-16px] sm:px-10 lg:px-16 xl:px-20">
         <div className="flex items-center gap-4 lg:gap-6">
           <button
             type="button"

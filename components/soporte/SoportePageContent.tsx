@@ -332,9 +332,9 @@ export default function SoportePageContent() {
 
       <section className="relative z-10 -mt-10 pb-10 md:-mt-12 md:pb-12">
         <div className="mx-auto w-full max-w-[1500px] px-6 sm:px-8 lg:px-10">
-          <div className="overflow-visible rounded-[30px] bg-[#DDE0E8] shadow-[0_18px_38px_rgba(15,23,42,0.14)] lg:h-[calc(100svh-250px)] lg:overflow-hidden">
-            <div className="grid grid-cols-1 lg:h-full lg:grid-cols-[320px_minmax(0,1fr)]">
-              <aside className="bg-[#5F6B76] px-4 py-5 sm:px-5 sm:py-6 lg:h-full lg:px-6">
+          <div className="overflow-hidden rounded-[30px] bg-[#DDE0E8] shadow-[0_18px_38px_rgba(15,23,42,0.14)]">
+            <div className="grid grid-cols-1 lg:grid-cols-[320px_minmax(0,1fr)] lg:items-stretch">
+              <aside className="flex flex-col bg-[#5F6B76] px-4 py-5 sm:px-5 sm:py-6 lg:h-full lg:min-h-0 lg:overflow-hidden lg:px-6">
                 <h2 className="text-center text-[20px] font-semibold text-white lg:text-left">
                   Selecciona la marca
                 </h2>
@@ -351,7 +351,7 @@ export default function SoportePageContent() {
                   </p>
                 ) : null}
 
-                <div className="mt-4 max-h-[300px] space-y-3 overflow-y-auto pr-1 lg:max-h-[calc(100%-72px)]">
+                <div className="mt-4 max-h-[320px] flex-1 space-y-2.5 overflow-y-auto pb-1 pr-1 lg:max-h-none lg:min-h-0">
                   {isLoadingBrands
                     ? Array.from({ length: 8 }).map((_, index) => (
                         <BrandSelectorSkeleton key={index} index={index} />
@@ -373,14 +373,14 @@ export default function SoportePageContent() {
                                 return next;
                               });
                             }}
-                            className={`group relative w-full overflow-hidden rounded-[16px] border p-3 text-left transition-all duration-250 ${
+                            className={`group relative w-full overflow-hidden rounded-[16px] border p-2.5 text-left transition-all duration-250 ${
                               isActive
                                 ? "border-[#F54029] bg-white shadow-[0_10px_20px_rgba(15,23,42,0.18)]"
                                 : "border-white/20 bg-white/95 hover:border-white/40"
                             }`}
                             aria-pressed={isActive}
                           >
-                            <div className="relative z-10 flex h-[60px] items-center justify-center rounded-[12px] bg-white transition-opacity duration-250 group-hover:opacity-10">
+                            <div className="relative z-10 flex h-[52px] items-center justify-center rounded-[12px] bg-white transition-opacity duration-250 group-hover:opacity-10">
                               {logoUrl ? (
                                 <img
                                   src={logoUrl}
@@ -396,7 +396,7 @@ export default function SoportePageContent() {
                               )}
                             </div>
 
-                            <p className="relative z-10 mt-2 text-center text-[12px] font-semibold tracking-[0.02em] text-[#4A5563] transition-opacity duration-250 group-hover:opacity-0">
+                            <p className="relative z-10 mt-1.5 text-center text-[11px] font-semibold tracking-[0.02em] text-[#4A5563] transition-opacity duration-250 group-hover:opacity-0">
                               {brand.nombre}
                             </p>
 
@@ -424,7 +424,7 @@ export default function SoportePageContent() {
                 </div>
               </aside>
 
-              <div className="bg-[#ECEFF4] px-5 py-5 sm:px-6 sm:py-6 lg:h-full lg:overflow-y-auto lg:px-8 lg:py-8">
+              <div className="bg-[#ECEFF4] px-4 py-4 sm:px-5 sm:py-5 lg:min-h-0 lg:px-6 lg:py-6">
                 <div className="rounded-[18px] bg-white p-4 shadow-[0_10px_24px_rgba(15,23,42,0.08)] sm:p-5">
                   <div className="flex flex-wrap items-center gap-4">
                     <div className="flex h-[58px] min-w-[120px] items-center justify-center rounded-[12px] bg-[#F5F7FA] px-3">
@@ -465,13 +465,13 @@ export default function SoportePageContent() {
                   ) : null}
                 </div>
 
-                <div className="mt-5 grid gap-5 xl:grid-cols-[minmax(0,1fr)_280px]">
+                <div className="mt-4 grid gap-4 xl:grid-cols-[minmax(0,1fr)_260px] xl:items-stretch">
                   <form
                     onSubmit={handleSubmit}
                     noValidate
-                    className="rounded-[22px] bg-white p-5 shadow-[0_10px_24px_rgba(15,23,42,0.08)]"
+                    className="h-full rounded-[22px] bg-white p-4 shadow-[0_10px_24px_rgba(15,23,42,0.08)] sm:p-5"
                   >
-                    <h4 className="text-[24px] font-semibold leading-none text-[#2F3B52]">
+                    <h4 className="text-[22px] font-semibold leading-none text-[#2F3B52]">
                       Formulario de soporte
                     </h4>
 
@@ -558,7 +558,7 @@ export default function SoportePageContent() {
                           id="soporte_mensaje"
                           value={values.mensaje}
                           onChange={(event) => updateField("mensaje", event.target.value)}
-                          className="min-h-[136px] w-full resize-y rounded-[12px] border border-transparent bg-[#F5F7FA] px-3.5 py-2.5 text-[14px] text-[#334155] outline-none transition focus:border-[#F54029]/55"
+                          className="min-h-[110px] w-full resize-y rounded-[12px] border border-transparent bg-[#F5F7FA] px-3.5 py-2.5 text-[14px] text-[#334155] outline-none transition focus:border-[#F54029]/55"
                           placeholder="Describe tu consulta de soporte"
                         />
                         {errors.mensaje ? (
@@ -586,13 +586,13 @@ export default function SoportePageContent() {
                     </div>
                   </form>
 
-                  <aside className="rounded-[22px] bg-white p-5 shadow-[0_10px_24px_rgba(15,23,42,0.08)]">
+                  <aside className="h-full rounded-[22px] bg-white p-4 shadow-[0_10px_24px_rgba(15,23,42,0.08)]">
                     <div className="overflow-hidden rounded-[14px]">
                       <img
                         src="/assets/heros/soporte_main.png"
                         alt="Canal de atención de soporte"
                         title="Soporte DMC"
-                        className="h-[96px] w-full object-cover"
+                        className="h-[84px] w-full object-cover"
                       />
                     </div>
 
@@ -625,10 +625,10 @@ export default function SoportePageContent() {
                           src={qrImageUrl}
                           alt={`QR de WhatsApp para ${selectedBrand?.nombre || "soporte"}`}
                           title="QR de soporte por WhatsApp"
-                          className="mx-auto h-[170px] w-[170px] rounded-[10px] border border-[#E6EAF1] bg-white p-2"
+                          className="mx-auto h-[148px] w-[148px] rounded-[10px] border border-[#E6EAF1] bg-white p-2"
                         />
                       ) : (
-                        <div className="mx-auto flex h-[170px] w-[170px] items-center justify-center rounded-[10px] border border-dashed border-[#CCD3DE] bg-[#F5F7FA] text-[13px] text-[#7A8594]">
+                        <div className="mx-auto flex h-[148px] w-[148px] items-center justify-center rounded-[10px] border border-dashed border-[#CCD3DE] bg-[#F5F7FA] text-[13px] text-[#7A8594]">
                           Sin número disponible
                         </div>
                       )}

@@ -298,8 +298,8 @@ export default function LatestNewsSection() {
         : "grid-cols-1";
 
   return (
-    <section className="bg-white pb-28">
-      <div className="mx-auto w-full max-w-[1700px] px-8 sm:px-12 lg:px-20 xl:px-24">
+    <section className="bg-white pb-24">
+      <div className="mx-auto w-full max-w-[1700px] px-6 sm:px-10 lg:px-16 xl:px-20">
         <h2 className="text-center text-[36px] font-medium leading-tight text-slate-700">
           Últimas Noticias
         </h2>

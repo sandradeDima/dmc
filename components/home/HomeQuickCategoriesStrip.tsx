@@ -142,7 +142,7 @@ const hoverGradient =
 export default function HomeQuickCategoriesStrip() {
   return (
     <section className="bg-white pb-24">
-      <div className="mx-auto w-full max-w-[1700px] px-8 sm:px-12 lg:px-20 xl:px-24">
+      <div className="mx-auto w-full max-w-[1700px] px-6 sm:px-10 lg:px-16 xl:px-20">
         <div className="relative overflow-hidden rounded-[34px] bg-[#5F6B76] px-8 py-8 sm:px-10 sm:py-10 lg:px-14 lg:py-12">
           <div
             className="pointer-events-none absolute inset-0 opacity-40"

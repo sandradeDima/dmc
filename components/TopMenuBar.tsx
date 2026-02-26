@@ -88,7 +88,7 @@ export default function TopMenuBar({ className = "" }: TopMenuBarProps) {
         </button>
 
         <nav className="hidden md:block" aria-label="Navegacion principal">
-          <ul className="flex min-w-max items-center gap-3 text-[13px] font-medium text-white/95 lg:gap-6">
+          <ul className="flex min-w-max items-center gap-3 text-[16px] font-semibold text-white/95 lg:gap-6">
             {menuItems.map((item) => (
               <li key={item.href}>
                 <Link
@@ -129,7 +129,7 @@ export default function TopMenuBar({ className = "" }: TopMenuBarProps) {
                     href={item.href}
                     onClick={() => setIsMobileMenuOpen(false)}
                     aria-current={isActiveRoute(item.href) ? "page" : undefined}
-                    className={`block rounded-xl px-3 py-2 text-[15px] font-medium text-white/95 transition ${
+                    className={`block rounded-xl px-3 py-2 text-[16px] font-semibold text-white/95 transition ${
                       isActiveRoute(item.href)
                         ? "bg-white/15 text-white underline underline-offset-4"
                         : "hover:bg-white/10 hover:text-white"

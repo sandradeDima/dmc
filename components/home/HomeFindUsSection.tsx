@@ -248,7 +248,7 @@ export default function HomeFindUsSection() {
         style={{ backgroundImage: "url('/assets/static/encuentranos_bg.png')" }}
       />
 
-      <div className="relative z-10 mx-auto w-full max-w-[1700px] px-8 sm:px-12 lg:px-20 xl:px-24">
+      <div className="relative z-10 mx-auto w-full max-w-[1700px] px-6 sm:px-10 lg:px-16 xl:px-20">
         <h2 className="text-center text-[36px] font-medium leading-tight text-slate-700">
           Encuéntranos
         </h2>
