@@ -460,7 +460,7 @@ export default function SoportePageContent() {
                       rel="noopener noreferrer"
                       className="mt-4 inline-flex items-center gap-2 rounded-full border border-[#D7DEE9] px-3 py-1.5 text-[13px] font-medium text-[#5E6A7B] transition hover:border-[#F54029] hover:text-[#F54029]"
                     >
-                      Sitio web: {selectedBrand.url_sitio_web}
+                      Sitio web: {selectedBrandWebsite}
                     </a>
                   ) : null}
                 </div>
