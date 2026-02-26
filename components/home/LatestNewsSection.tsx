@@ -159,7 +159,14 @@ function NewsCard({ post }: { post: BlogPost }) {
       </div>
 
       <div className="px-5 py-4">
-        <h3 className="text-[19px] font-semibold leading-tight text-slate-700 transition-colors duration-250 group-hover:text-white">
+        <h3
+          className="h-[3.4rem] overflow-hidden text-[19px] font-semibold leading-tight text-slate-700 transition-colors duration-250 group-hover:text-white"
+          style={{
+            display: "-webkit-box",
+            WebkitLineClamp: 2,
+            WebkitBoxOrient: "vertical",
+          }}
+        >
           {post.titulo}
         </h3>
 
@@ -169,7 +176,14 @@ function NewsCard({ post }: { post: BlogPost }) {
           {authorLabel} - {publishedDate}
         </p>
 
-        <p className="mt-2 text-[19px] leading-tight text-slate-600 transition-colors duration-250 group-hover:text-white">
+        <p
+          className="mt-2 h-[4.8rem] overflow-hidden text-[19px] leading-tight text-slate-600 transition-colors duration-250 group-hover:text-white"
+          style={{
+            display: "-webkit-box",
+            WebkitLineClamp: 3,
+            WebkitBoxOrient: "vertical",
+          }}
+        >
           {post.descripcion_corta}
         </p>
       </div>

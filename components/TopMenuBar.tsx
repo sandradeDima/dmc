@@ -12,7 +12,6 @@ const menuItems = [
   { label: "Marcas", href: "/marcas" },
   { label: "Soporte", href: "/soporte" },
   { label: "Academia", href: "/academia" },
-  { label: "DMC", href: "/dmc" },
   { label: "Blog", href: "/blog" },
 ];
 
