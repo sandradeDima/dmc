@@ -131,7 +131,7 @@ export default function HomeBrandsProducts() {
   );
 
   return (
-    <section className="bg-white pt-20 pb-24">
+    <section className="bg-white pt-20 pb-12">
       {shouldRenderBrands && (
         <BrandsMarquee
           brands={brands}

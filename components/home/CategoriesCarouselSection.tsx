@@ -214,7 +214,7 @@ export default function CategoriesCarouselSection() {
     itemsPerPage === 3 ? "xl:grid-cols-3 md:grid-cols-2 grid-cols-1" : itemsPerPage === 2 ? "md:grid-cols-2 grid-cols-1" : "grid-cols-1";
 
   return (
-    <section className="bg-white pt-10 pb-24">
+    <section className="bg-white pt-2 pb-24">
       <div className="bg-[#F4F5F7]">
         <div className="mx-auto w-full max-w-[1700px] px-6 py-8 text-center sm:px-10 lg:px-16 xl:px-20">
           <h2 className="text-[36px] font-medium leading-tight text-slate-700">
