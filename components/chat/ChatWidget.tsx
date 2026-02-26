@@ -77,6 +77,7 @@ export default function ChatWidget() {
   const [loadingMenuId, setLoadingMenuId] = useState<number | null>(null);
   const [loadingOptionId, setLoadingOptionId] = useState<number | null>(null);
   const [realtimeActive, setRealtimeActive] = useState(false);
+  const [hasUnreadWhileClosed, setHasUnreadWhileClosed] = useState(false);
 
   const messagesRef = useRef<ChatUiMessage[]>([]);
 
@@ -95,13 +96,45 @@ export default function ChatWidget() {
     localStorage.removeItem(DMC_CHAT_TOKEN_STORAGE_KEY);
   }, []);
 
-  const appendMessages = useCallback((incoming: ChatUiMessage[]) => {
-    if (!incoming.length) {
-      return;
-    }
+  const appendMessages = useCallback(
+    (incoming: ChatUiMessage[]) => {
+      if (!incoming.length) {
+        return;
+      }
 
-    setMessages((prev) => mergeUniqueMessages(prev, incoming));
-  }, []);
+      setMessages((prev) => {
+        const signature = (message: ChatUiMessage): string => {
+          if (typeof message.backendId === "number") {
+            return `backend-${message.backendId}`;
+          }
+
+          return [
+            message.emisor,
+            message.mensaje.trim(),
+            message.createdAt,
+            message.conversacionId ?? "",
+          ].join("|");
+        };
+
+        const existing = new Set(prev.map(signature));
+        const hasNewIncomingWhileClosed =
+          !isOpen &&
+          incoming.some((message) => {
+            const isNew = !existing.has(signature(message));
+            const isIncoming =
+              message.emisor === "operador" || message.emisor === "sistema";
+            return isNew && isIncoming;
+          });
+
+        if (hasNewIncomingWhileClosed) {
+          setHasUnreadWhileClosed(true);
+        }
+
+        return mergeUniqueMessages(prev, incoming);
+      });
+    },
+    [isOpen],
+  );
 
   const applyInitializedState = useCallback(
     (data: {
@@ -215,7 +248,13 @@ export default function ChatWidget() {
   }, [initializeChat, isOpen]);
 
   useEffect(() => {
-    if (!isOpen || mode !== "operador" || !token || !conversacionId) {
+    if (isOpen) {
+      setHasUnreadWhileClosed(false);
+    }
+  }, [isOpen]);
+
+  useEffect(() => {
+    if (mode !== "operador" || !token || !conversacionId) {
       setRealtimeActive(false);
       return;
     }
@@ -279,18 +318,18 @@ export default function ChatWidget() {
       subscription.unsubscribe();
       setRealtimeActive(false);
     };
-  }, [appendMessages, conversacionId, isOpen, mode, token]);
+  }, [appendMessages, conversacionId, mode, token]);
 
   useEffect(() => {
-    if (!isOpen || mode !== "operador" || !token) {
+    if (!token) {
       return;
     }
 
-    const interval = window.setInterval(async () => {
+    const syncSnapshot = async () => {
       try {
         const snapshot = await chatInicializar(token);
         const normalized = normalizeHistorial(snapshot.historial);
-        setMessages((prev) => mergeUniqueMessages(prev, normalized));
+        appendMessages(normalized);
         setEsHorarioLaboral(snapshot.es_horario_laboral);
 
         if (snapshot.modo !== mode) {
@@ -309,15 +348,21 @@ export default function ChatWidget() {
           pollError,
         );
       }
+    };
+
+    void syncSnapshot();
+
+    const interval = window.setInterval(() => {
+      void syncSnapshot();
     }, 18000);
 
     return () => {
       window.clearInterval(interval);
     };
   }, [
+    appendMessages,
     applyInitializedState,
     initializeChat,
-    isOpen,
     mode,
     persistToken,
     token,
@@ -593,7 +638,11 @@ export default function ChatWidget() {
         </div>
       )}
 
-      <ChatFabButton isOpen={isOpen} onClick={handleToggle} />
+      <ChatFabButton
+        isOpen={isOpen}
+        hasUnread={hasUnreadWhileClosed}
+        onClick={handleToggle}
+      />
     </div>
   );
 }

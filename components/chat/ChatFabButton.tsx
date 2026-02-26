@@ -2,6 +2,7 @@
 
 type ChatFabButtonProps = {
   isOpen: boolean;
+  hasUnread: boolean;
   onClick: () => void;
 };
 
@@ -32,6 +33,7 @@ function CloseIcon() {
 
 export default function ChatFabButton({
   isOpen,
+  hasUnread,
   onClick,
 }: ChatFabButtonProps) {
   return (
@@ -39,9 +41,16 @@ export default function ChatFabButton({
       type="button"
       onClick={onClick}
       aria-label={isOpen ? "Cerrar chat" : "Abrir chat"}
-      className="flex h-14 w-14 items-center justify-center rounded-full bg-[#F54029] text-white shadow-[0_10px_24px_rgba(15,23,42,0.28)] transition-transform duration-200 hover:scale-105 hover:brightness-105"
+      className="relative flex h-14 w-14 items-center justify-center rounded-full bg-[#F54029] text-white shadow-[0_10px_24px_rgba(15,23,42,0.28)] transition-transform duration-200 hover:scale-105 hover:brightness-105"
     >
       {isOpen ? <CloseIcon /> : <ChatIcon />}
+
+      {!isOpen && hasUnread ? (
+        <span
+          className="absolute -top-0.5 -right-0.5 h-3.5 w-3.5 rounded-full border-2 border-white bg-[#22C55E]"
+          aria-hidden="true"
+        />
+      ) : null}
     </button>
   );
 }
