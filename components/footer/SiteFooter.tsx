@@ -135,7 +135,7 @@ function RssIcon({ className = "" }: { className?: string }) {
 const footerLinksLeft: FooterLinkItem[] = [
   { label: "Inicio", href: "/", icon: <HomeIcon className="h-[19px] w-[19px]" /> },
   {
-    label: "Catalogo",
+    label: "Catálogo",
     href: "/catalogo",
     icon: <BookIcon className="h-[19px] w-[19px]" />,
   },
@@ -289,7 +289,7 @@ export default function SiteFooter() {
               </div>
 
               <div className="grid gap-6 border-y border-white/20 py-6 sm:grid-cols-2 lg:border-y-0 lg:border-x lg:px-10 lg:py-0">
-                <FooterLinksColumn title="Paginas:" links={footerLinksLeft} />
+                <FooterLinksColumn title="Páginas:" links={footerLinksLeft} />
                 <FooterLinksColumn links={footerLinksRight} className="sm:pt-[48px] lg:pt-0" />
               </div>
 

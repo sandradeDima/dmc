@@ -104,7 +104,7 @@ function FindUsSkeleton() {
         <div className="h-[170px] animate-pulse rounded-[34px] bg-slate-300/70 sm:h-[186px] lg:h-[198px]" />
       </div>
 
-      <div className="h-[380px] animate-pulse rounded-[36px] bg-white/80 shadow-[0_16px_40px_rgba(15,23,42,0.12)] sm:h-[410px] lg:h-[436px]" />
+      <div className="h-[380px] animate-pulse rounded-[36px] bg-white/80 shadow-[0_16px_40px_rgba(15,23,42,0.12)] sm:h-[410px] xl:h-[436px]" />
     </div>
   );
 }
@@ -256,7 +256,7 @@ export default function HomeFindUsSection() {
         {isLoading ? (
           <FindUsSkeleton />
         ) : (
-          <div className="mt-10 grid gap-8 lg:grid-cols-[470px_minmax(0,1fr)]">
+          <div className="mt-10 grid gap-8 lg:grid-cols-[450px_minmax(0,1fr)]">
             <div className="space-y-10">
               <CtaCard
                 titleLineOne="Solicita una"
@@ -273,15 +273,15 @@ export default function HomeFindUsSection() {
               />
             </div>
 
-            <article className="rounded-[36px] bg-white p-4 shadow-[0_16px_40px_rgba(15,23,42,0.12)] sm:p-5 lg:h-[436px]">
-              <div className="grid h-full gap-4 lg:grid-cols-[380px_minmax(0,1fr)]">
-                <div className="flex flex-col items-center justify-center space-y-6 p-5 sm:p-6 lg:p-7">
+            <article className="rounded-[36px] bg-white p-4 shadow-[0_16px_40px_rgba(15,23,42,0.12)] sm:p-5 xl:h-[436px]">
+              <div className="grid h-full gap-4 xl:grid-cols-[minmax(240px,320px)_minmax(0,1fr)]">
+                <div className="flex flex-col items-center justify-start space-y-6 p-5 sm:p-6 xl:justify-center xl:p-7">
                   <InfoBlock title="Dirección" lines={direccionLines} />
                   <InfoBlock title="Contacto" lines={contactoLines} />
                   <InfoBlock title="Horario" lines={horarioLines} />
                 </div>
 
-                <div className="h-[320px] rounded-[24px] bg-slate-100 p-3 sm:p-4 lg:h-full">
+                <div className="h-[280px] rounded-[24px] bg-slate-100 p-3 sm:h-[320px] sm:p-4 xl:h-full">
                   <iframe
                     src={mapEmbedSrc}
                     title="Mapa de ubicación DMC"

@@ -221,7 +221,7 @@ function SocialItem({ item }: { item: RedSocialItem }) {
   const showImage = Boolean(iconUrl) && !hasImageError;
 
   const content = (
-    <span className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/25 bg-white/10 text-white/90 transition-all duration-200 hover:scale-105 hover:bg-white/20">
+    <span className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-white bg-white text-[#2F3B4A] transition-all duration-200 hover:scale-105 hover:bg-white/90">
       {showImage ? (
         <img
           src={iconUrl as string}

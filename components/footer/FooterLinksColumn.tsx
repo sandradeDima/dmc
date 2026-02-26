@@ -23,7 +23,7 @@ export default function FooterLinksColumn({
   return (
     <div className={className}>
       {title ? (
-        <h3 className="text-[24px] font-medium leading-none text-white/95 sm:text-[30px] lg:text-[36px]">
+        <h3 className="text-[15px] font-medium leading-none text-white/95 sm:text-[16px] lg:text-[17px]">
           {title}
         </h3>
       ) : null}
@@ -33,9 +33,9 @@ export default function FooterLinksColumn({
           <li key={link.href}>
             <Link
               href={link.href}
-              className="group inline-flex items-center gap-3 text-[15px] text-white/90 transition-colors hover:text-white sm:text-[17px] lg:text-[18px]"
+              className="group inline-flex items-center gap-3 text-[15px] text-white/90 transition-colors hover:text-[#F54029] sm:text-[17px] lg:text-[18px]"
             >
-              <span className="text-white/90 transition-colors group-hover:text-white">
+              <span className="text-white/90 transition-colors group-hover:text-[#F54029]">
                 {link.icon}
               </span>
               <span>{link.label}</span>

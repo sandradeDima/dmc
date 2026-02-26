@@ -7,7 +7,7 @@ import { useEffect, useState } from "react";
 
 const menuItems = [
   { label: "Inicio", href: "/" },
-  { label: "Catalogo", href: "/catalogo" },
+  { label: "Catálogo", href: "/catalogo" },
   { label: "Cotizar", href: "/cotizar" },
   { label: "Marcas", href: "/marcas" },
   { label: "Soporte", href: "/soporte" },
@@ -87,7 +87,7 @@ export default function TopMenuBar({ className = "" }: TopMenuBarProps) {
           </span>
         </button>
 
-        <nav className="hidden md:block" aria-label="Navegacion principal">
+        <nav className="hidden md:block" aria-label="Navegación principal">
           <ul className="flex min-w-max items-center gap-3 text-[16px] font-semibold text-white/95 lg:gap-6">
             {menuItems.map((item) => (
               <li key={item.href}>
@@ -119,7 +119,7 @@ export default function TopMenuBar({ className = "" }: TopMenuBarProps) {
 
           <nav
             id="mobile-main-menu"
-            aria-label="Navegacion principal móvil"
+            aria-label="Navegación principal móvil"
             className="absolute inset-x-0 top-full z-50 border-b border-white/20 bg-[rgba(92,104,115,0.96)] px-6 py-4 shadow-[0_10px_30px_rgba(15,23,42,0.35)] backdrop-blur-sm md:hidden"
           >
             <ul className="space-y-1">

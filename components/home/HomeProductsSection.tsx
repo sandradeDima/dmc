@@ -72,7 +72,7 @@ function ProductPlaceholderCard({ index }: { index: number }) {
       key={`placeholder-${index}`}
       className="flex h-[402px] w-[294px] shrink-0 flex-col items-center justify-center rounded-[36px] border border-dashed border-slate-300 bg-slate-50 text-slate-400"
     >
-      Proximamente
+      Próximamente
     </div>
   );
 }
