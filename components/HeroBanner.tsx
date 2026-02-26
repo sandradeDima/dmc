@@ -2,6 +2,7 @@
 
 /* eslint-disable @next/next/no-img-element */
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { getBanners, getInformacion, toPublicStorageUrl } from "@/lib/api";
 
@@ -94,6 +95,7 @@ function SearchIcon() {
 }
 
 export default function HeroBanner() {
+  const router = useRouter();
   const [slides, setSlides] = useState<HeroSlide[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -103,6 +105,7 @@ export default function HeroBanner() {
   const [touchStartX, setTouchStartX] = useState<number | null>(null);
   const [touchEndX, setTouchEndX] = useState<number | null>(null);
   const [mainHeaderText, setMainHeaderText] = useState(DEFAULT_HOME_HEADER_TEXT);
+  const [searchValue, setSearchValue] = useState("");
 
   useEffect(() => {
     const controller = new AbortController();
@@ -212,6 +215,22 @@ export default function HeroBanner() {
     setIsPaused(false);
   };
 
+  const handleSearchSubmit = useCallback(
+    (event: React.FormEvent<HTMLFormElement>) => {
+      event.preventDefault();
+
+      const normalized = searchValue.trim();
+      const params = new URLSearchParams();
+
+      if (normalized) {
+        params.set("nombre", normalized);
+      }
+
+      router.push(params.toString() ? `/catalogo?${params.toString()}` : "/catalogo");
+    },
+    [router, searchValue],
+  );
+
   const showFallbackBackground = visibleSlides.length === 0;
 
   return (
@@ -307,21 +326,26 @@ export default function HeroBanner() {
       </div>
 
       <div className="pointer-events-none absolute inset-x-0 bottom-0 z-30 flex translate-y-1/2 justify-center px-4">
-        <div className="pointer-events-auto flex h-[58px] w-full max-w-[773px] items-center rounded-[42px] bg-[#eeeeee] pl-6 pr-3 shadow-[0px_3.387px_10.329px_0px_rgba(0,0,0,0.17)] md:h-[70px] md:pl-8 md:pr-4 lg:h-[82.973px]">
+        <form
+          onSubmit={handleSearchSubmit}
+          className="pointer-events-auto flex h-[58px] w-full max-w-[773px] items-center rounded-[42px] bg-[#eeeeee] pl-6 pr-3 shadow-[0px_3.387px_10.329px_0px_rgba(0,0,0,0.17)] md:h-[70px] md:pl-8 md:pr-4 lg:h-[82.973px]"
+        >
           <input
             type="text"
+            value={searchValue}
+            onChange={(event) => setSearchValue(event.target.value)}
             placeholder="Buscar productos"
             className="w-full bg-transparent text-[16px] font-light tracking-[0.2px] text-[#b6b6b6] placeholder:text-[16px] placeholder:font-light placeholder:text-[#b6b6b6] focus:outline-none md:text-[19px] md:placeholder:text-[19px] lg:text-[21.963px] lg:tracking-[0.439px] lg:placeholder:text-[21.963px]"
             aria-label="Buscar productos"
           />
           <button
-            type="button"
+            type="submit"
             aria-label="Buscar productos"
             className="flex h-[38px] w-[38px] items-center justify-center rounded-full text-[#ef4f39] transition-colors hover:bg-[#e2e2e2]"
           >
             <SearchIcon />
           </button>
-        </div>
+        </form>
       </div>
     </section>
   );
