@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { usePathname } from "next/navigation";
 import {
   chatEnviarMensaje,
   chatFinalizar,
@@ -13,6 +14,12 @@ import {
   type ChatBotOpcion,
   type ChatMenu,
 } from "@/lib/api/chatApi";
+import {
+  getPageTypeFromPath,
+  trackChatLeadSubmit,
+  trackChatMessageSent,
+  trackChatOpen,
+} from "@/lib/analytics/ga4";
 import {
   subscribeToChatRealtime,
   type ChatRealtimeMessagePayload,
@@ -55,6 +62,7 @@ function createDevelopmentRealtimeLogger(message: string, error?: unknown) {
 }
 
 export default function ChatWidget() {
+  const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
   const [initializing, setInitializing] = useState(false);
   const [mode, setMode] = useState<ChatMode>(null);
@@ -80,6 +88,13 @@ export default function ChatWidget() {
   const [hasUnreadWhileClosed, setHasUnreadWhileClosed] = useState(false);
 
   const messagesRef = useRef<ChatUiMessage[]>([]);
+  const pageType = getPageTypeFromPath(pathname ?? "/");
+
+  const resolveChatMode = useCallback((): string => {
+    if (mode === "bot") return "bot";
+    if (mode === "operador" && realtimeActive) return "realtime";
+    return "hybrid";
+  }, [mode, realtimeActive]);
 
   const persistToken = useCallback((value: string | null) => {
     setToken(value);
@@ -369,7 +384,20 @@ export default function ChatWidget() {
   ]);
 
   const handleToggle = () => {
-    setIsOpen((prev) => !prev);
+    setIsOpen((prev) => {
+      const next = !prev;
+
+      if (!prev && next) {
+        trackChatOpen({
+          chat_provider: "dmc_custom_chat",
+          page_type: pageType,
+          chat_mode: resolveChatMode(),
+          realtime_active: realtimeActive,
+        });
+      }
+
+      return next;
+    });
   };
 
   const handleClose = () => {
@@ -416,6 +444,12 @@ export default function ChatWidget() {
       appendMessages(responseMessages);
 
       if (data.transferir_a_operador === 1) {
+        trackChatLeadSubmit({
+          chat_provider: "dmc_custom_chat",
+          page_type: pageType,
+          lead_type: "support",
+          option_slug: option.slug,
+        });
         appendMessages([
           createSystemMessage(
             "Estamos transfiriendo tu conversación con un operador.",
@@ -496,6 +530,13 @@ export default function ChatWidget() {
 
     setSending(true);
     setError(null);
+    trackChatMessageSent({
+      chat_provider: "dmc_custom_chat",
+      page_type: pageType,
+      message_length: content.length,
+      chat_mode: resolveChatMode(),
+      conversation_id_present: Boolean(conversacionId),
+    });
 
     try {
       const data = await chatEnviarMensaje(content, token);

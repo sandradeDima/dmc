@@ -7,6 +7,7 @@ import {
   MarcaItem,
   MarcasPaginationData,
 } from "@/lib/api";
+import Breadcrumbs from "@/components/Breadcrumbs";
 import MarcaCard from "./MarcaCard";
 import MarcasHero from "./MarcasHero";
 import MarcasPagination from "./MarcasPagination";
@@ -145,6 +146,14 @@ export default function MarcasListPage() {
 
       <section className="relative z-10 -mt-20 pb-16 md:-mt-24">
         <div className="mx-auto w-full max-w-[1500px] px-6 sm:px-8 lg:px-10">
+          <Breadcrumbs
+            className="mb-5"
+            items={[
+              { label: "Inicio", href: "/" },
+              { label: "Marcas" },
+            ]}
+          />
+
           {hasError ? (
             <div className="rounded-[18px] bg-white px-8 py-14 text-center shadow-[0_14px_32px_rgba(15,23,42,0.10)]">
               <p className="text-lg text-[#5D6673]">No se pudieron cargar las marcas.</p>

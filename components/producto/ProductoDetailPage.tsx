@@ -2,8 +2,10 @@
 
 /* eslint-disable @next/next/no-img-element */
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { getMarcasList, getProductoDetalle, ProductoDetailItem } from "@/lib/api";
+import Breadcrumbs from "@/components/Breadcrumbs";
+import { trackProductView } from "@/lib/analytics/ga4";
 import ProductoHero from "./ProductoHero";
 import RelatedProductCard from "./RelatedProductCard";
 import {
@@ -89,6 +91,14 @@ function formatSpecValue(value: string | null | undefined): string | null {
   return clean && clean.length > 0 ? clean : null;
 }
 
+function formatSlugTitle(slug: string): string {
+  return slug
+    .split(/[-_]+/)
+    .filter((part) => part.length > 0)
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(" ");
+}
+
 async function resolveBrandLogo(producto: ProductoDetailItem): Promise<BrandLogoData> {
   const targetId = producto.marca_id;
   const targetSlug = producto.marca?.slug?.trim().toLowerCase();
@@ -135,6 +145,7 @@ export default function ProductoDetailPage({ slug }: ProductoDetailPageProps) {
   const [selectedImagePath, setSelectedImagePath] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [hasError, setHasError] = useState(false);
+  const lastTrackedProductKeyRef = useRef<string>("");
 
   useEffect(() => {
     let isCancelled = false;
@@ -214,6 +225,27 @@ export default function ProductoDetailPage({ slug }: ProductoDetailPageProps) {
     }
   }, [galleryImages, selectedImagePath]);
 
+  useEffect(() => {
+    if (!product) return;
+
+    const trackingKey = `${product.id}-${product.slug}`;
+    if (lastTrackedProductKeyRef.current === trackingKey) return;
+
+    lastTrackedProductKeyRef.current = trackingKey;
+    trackProductView({
+      id: product.id,
+      nombre: product.nombre,
+      slug: product.slug,
+      categoria: product.categoria?.nombre ?? null,
+      subcategoria: product.subcategoria?.nombre ?? null,
+      precio: product.precio ?? null,
+      precioReferencial: product.precio_referencial ?? null,
+      marca: product.marca?.nombre ?? null,
+      sku: product.sku ?? null,
+      skuDmc: product.sku_dmc ?? null,
+    });
+  }, [product]);
+
   const selectedImage =
     galleryImages.find((image) => image.path === selectedImagePath) ?? galleryImages[0] ?? null;
 
@@ -227,6 +259,8 @@ export default function ProductoDetailPage({ slug }: ProductoDetailPageProps) {
   const priceLabel = product ? formatPriceOrFallback(product) : null;
   const shortDescription = formatSpecValue(product?.descripcion_corta) ?? "Sin descripción";
   const technicalDescription = formatSpecValue(product?.descripcion_tecnica);
+  const productLabel = product?.nombre?.trim() || formatSlugTitle(slug) || "Producto";
+  const brandLabel = product?.marca?.nombre?.trim() || "Marcas";
 
   const specs = [
     { label: "SKU", value: formatSpecValue(product?.sku) },
@@ -242,6 +276,16 @@ export default function ProductoDetailPage({ slug }: ProductoDetailPageProps) {
 
       <section className="bg-white py-8 md:py-10">
         <div className="mx-auto w-full max-w-[1500px] px-6 sm:px-8 lg:px-10">
+          <Breadcrumbs
+            className="mb-5"
+            items={[
+              { label: "Inicio", href: "/" },
+              { label: "Marcas", href: "/marcas" },
+              { label: brandLabel, href: backHref },
+              { label: productLabel },
+            ]}
+          />
+
           {isLoading ? (
             <DetailSkeleton />
           ) : hasError || !product ? (

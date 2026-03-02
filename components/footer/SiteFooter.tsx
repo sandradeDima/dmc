@@ -143,6 +143,7 @@ const footerLinksLeft: FooterLinkItem[] = [
     label: "Cotizar",
     href: "/cotizar",
     icon: <ReceiptIcon className="h-[19px] w-[19px]" />,
+    analyticsSourceSection: "footer_nav",
   },
 ];
 

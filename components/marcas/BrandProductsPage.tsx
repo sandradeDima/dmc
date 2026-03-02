@@ -10,6 +10,7 @@ import {
   ProductoItem,
   ProductosPaginationData,
 } from "@/lib/api";
+import Breadcrumbs from "@/components/Breadcrumbs";
 import BrandProductCard from "./BrandProductCard";
 import BrandProductsHero from "./BrandProductsHero";
 import MarcasPagination from "./MarcasPagination";
@@ -307,6 +308,15 @@ export default function BrandProductsPage({ slug }: BrandProductsPageProps) {
 
       <section className="relative z-10 -mt-20 pb-16 md:-mt-24">
         <div className="mx-auto w-full max-w-[1500px] px-6 sm:px-8 lg:px-10">
+          <Breadcrumbs
+            className="mb-4"
+            items={[
+              { label: "Inicio", href: "/" },
+              { label: "Marcas", href: "/marcas" },
+              { label: brandTitle },
+            ]}
+          />
+
           <div className="mb-7 flex items-center">
             <Link
               href="/marcas"

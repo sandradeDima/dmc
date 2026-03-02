@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { postCotizacion, PublicApiError } from "@/lib/api";
+import { trackGenerateLead } from "@/lib/analytics/ga4";
 
 type CotizacionPerfil = "corporativa_personal" | "distribucion";
 
@@ -209,6 +210,12 @@ export default function CotizacionFormCard({ embedded = false }: CotizacionFormC
       setFeedback({
         type: "success",
         message: "Cotización enviada correctamente.",
+      });
+      trackGenerateLead({
+        cta_name: "cotizar",
+        page_type: "quote",
+        source_section: "cotizar_form",
+        lead_type: "quote",
       });
       setValues(INITIAL_VALUES);
       setErrors({});

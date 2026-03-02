@@ -8,6 +8,7 @@ import {
   getBlogDetalle,
   getBlogList,
 } from "@/lib/api";
+import Breadcrumbs from "@/components/Breadcrumbs";
 import BlogHero from "./BlogHero";
 import {
   buildImageUrl,
@@ -82,6 +83,14 @@ function isPublishedPost(item: BlogPostItem): boolean {
 function resolveAuthorName(item: BlogPostItem): string {
   const name = item.autor?.name?.trim();
   return name && name.length > 0 ? name : "Autor";
+}
+
+function formatSlugTitle(slug: string): string {
+  return slug
+    .split(/[-_]+/)
+    .filter((part) => part.length > 0)
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(" ");
 }
 
 function SidebarCard({ post }: { post: BlogPostItem }) {
@@ -262,6 +271,7 @@ export default function BlogDetailPage({ slug }: BlogDetailPageProps) {
   const imageTitle = post?.title_imagen?.trim() || post?.titulo || "Artículo";
   const authorLabel = post ? resolveAuthorName(post) : "Autor";
   const publishedDate = formatBlogDate(post?.fecha_publicacion ?? null);
+  const detailLabel = post?.titulo?.trim() || formatSlugTitle(slug) || "Detalle";
 
   return (
     <div className="min-h-screen bg-white">
@@ -269,11 +279,30 @@ export default function BlogDetailPage({ slug }: BlogDetailPageProps) {
 
       {isLoading ? (
         <section className="pb-16 pt-8">
+          <div className="mx-auto w-full max-w-[1500px] px-6 sm:px-8 lg:px-10">
+            <Breadcrumbs
+              className="mb-5"
+              items={[
+                { label: "Inicio", href: "/" },
+                { label: "Blog", href: "/blog" },
+                { label: detailLabel },
+              ]}
+            />
+          </div>
           <DetailLoadingSkeleton />
         </section>
       ) : hasError || !post ? (
         <section className="pb-16 pt-8">
           <div className="mx-auto w-full max-w-[1500px] px-6 sm:px-8 lg:px-10">
+            <Breadcrumbs
+              className="mb-5"
+              items={[
+                { label: "Inicio", href: "/" },
+                { label: "Blog", href: "/blog" },
+                { label: detailLabel },
+              ]}
+            />
+
             <div className="rounded-[22px] bg-white px-8 py-14 text-center shadow-[0_16px_36px_rgba(15,23,42,0.12)]">
               <p className="text-lg text-[#5D6673]">No se pudo cargar el artículo.</p>
               <Link
@@ -289,6 +318,15 @@ export default function BlogDetailPage({ slug }: BlogDetailPageProps) {
       ) : (
         <section className="pb-16 pt-8">
           <div className="mx-auto w-full max-w-[1500px] px-6 sm:px-8 lg:px-10">
+            <Breadcrumbs
+              className="mb-5"
+              items={[
+                { label: "Inicio", href: "/" },
+                { label: "Blog", href: "/blog" },
+                { label: detailLabel },
+              ]}
+            />
+
             <div className="grid grid-cols-1 gap-8 xl:grid-cols-[minmax(0,1fr)_360px]">
               <article className="bg-transparent p-0">
                 <Link

@@ -4,6 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
+import { getPageTypeFromPath, trackGenerateLead } from "@/lib/analytics/ga4";
 
 const menuItems = [
   { label: "Inicio", href: "/" },
@@ -22,6 +23,7 @@ type TopMenuBarProps = {
 export default function TopMenuBar({ className = "" }: TopMenuBarProps) {
   const pathname = usePathname();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const pageType = getPageTypeFromPath(pathname ?? "/");
 
   useEffect(() => {
     if (!isMobileMenuOpen) {
@@ -40,6 +42,16 @@ export default function TopMenuBar({ className = "" }: TopMenuBarProps) {
     href === "/"
       ? pathname === "/"
       : pathname === href || pathname.startsWith(`${href}/`);
+
+  const handleMenuClick = (href: string) => {
+    if (href !== "/cotizar") return;
+
+    trackGenerateLead({
+      cta_name: "cotizar",
+      page_type: pageType,
+      source_section: "top_nav",
+    });
+  };
 
   return (
     <header
@@ -93,6 +105,7 @@ export default function TopMenuBar({ className = "" }: TopMenuBarProps) {
               <li key={item.href}>
                 <Link
                   href={item.href}
+                  onClick={() => handleMenuClick(item.href)}
                   aria-current={isActiveRoute(item.href) ? "page" : undefined}
                   className={`whitespace-nowrap transition-colors duration-200 hover:text-white hover:underline hover:underline-offset-4 ${
                     isActiveRoute(item.href)
@@ -127,7 +140,10 @@ export default function TopMenuBar({ className = "" }: TopMenuBarProps) {
                 <li key={item.href}>
                   <Link
                     href={item.href}
-                    onClick={() => setIsMobileMenuOpen(false)}
+                    onClick={() => {
+                      handleMenuClick(item.href);
+                      setIsMobileMenuOpen(false);
+                    }}
                     aria-current={isActiveRoute(item.href) ? "page" : undefined}
                     className={`block rounded-xl px-3 py-2 text-[16px] font-semibold text-white/95 transition ${
                       isActiveRoute(item.href)

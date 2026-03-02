@@ -12,6 +12,7 @@ import {
 } from "@/lib/api";
 import BrandProductCard from "@/components/marcas/BrandProductCard";
 import MarcasPagination from "@/components/marcas/MarcasPagination";
+import Breadcrumbs from "@/components/Breadcrumbs";
 import CatalogoHero from "./CatalogoHero";
 import {
   buildProductosQuery,
@@ -373,6 +374,14 @@ export default function CatalogoPageContent() {
 
       <section className="relative z-10 -mt-10 pb-16 md:-mt-12">
         <div className="mx-auto w-full max-w-[1500px] px-6 sm:px-8 lg:px-10">
+          <Breadcrumbs
+            className="mb-4"
+            items={[
+              { label: "Inicio", href: "/" },
+              { label: "Catálogo" },
+            ]}
+          />
+
           <div className="grid grid-cols-1 gap-6 xl:grid-cols-[260px_minmax(0,1fr)]">
             <aside className="overflow-hidden rounded-[22px] bg-[#E2E5EA] shadow-[0_10px_26px_rgba(15,23,42,0.12)]">
               <div className="bg-[#5F6B76] px-4 py-3 text-center text-[13px] font-semibold uppercase tracking-[0.06em] text-white">

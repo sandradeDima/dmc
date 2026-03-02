@@ -3,6 +3,7 @@
 /* eslint-disable @next/next/no-img-element */
 import CotizarHero from "./CotizarHero";
 import CotizacionFormCard from "./CotizacionFormCard";
+import Breadcrumbs from "@/components/Breadcrumbs";
 
 export default function CotizarPageContent() {
   return (
@@ -11,6 +12,14 @@ export default function CotizarPageContent() {
 
       <section className="relative z-10 -mt-10 pb-8 md:-mt-12 md:pb-10">
         <div className="mx-auto w-full max-w-[1500px] px-6 sm:px-8 lg:px-10">
+          <Breadcrumbs
+            className="mb-4"
+            items={[
+              { label: "Inicio", href: "/" },
+              { label: "Cotizar" },
+            ]}
+          />
+
           <div className="overflow-hidden rounded-[30px] bg-[#DDE0E8] shadow-[0_16px_36px_rgba(15,23,42,0.12)]">
             <div className="grid grid-cols-1 items-stretch xl:grid-cols-[minmax(0,0.9fr)_minmax(0,1fr)]">
               <div className="overflow-hidden xl:h-full">

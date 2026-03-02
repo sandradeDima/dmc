@@ -2,6 +2,7 @@
 
 /* eslint-disable @next/next/no-img-element */
 import { useEffect, useMemo, useRef, useState } from "react";
+import { usePathname } from "next/navigation";
 import {
   getInformacion,
   getMarcasList,
@@ -17,6 +18,8 @@ import {
   isValidEmail,
   sanitizePhoneInput,
 } from "./soporteUtils";
+import Breadcrumbs from "@/components/Breadcrumbs";
+import { getPageTypeFromPath, trackChatOpen } from "@/lib/analytics/ga4";
 
 type SoporteFormValues = {
   nombre_apellido: string;
@@ -200,6 +203,7 @@ function validateForm(values: SoporteFormValues, hasBrand: boolean): FormErrors 
 }
 
 export default function SoportePageContent() {
+  const pathname = usePathname();
   const [brands, setBrands] = useState<MarcaItem[]>([]);
   const [selectedBrandId, setSelectedBrandId] = useState<number | null>(null);
   const [fallbackPhone, setFallbackPhone] = useState<string | null>(null);
@@ -280,6 +284,7 @@ export default function SoportePageContent() {
   const selectedBrandLogo = buildImageUrl(selectedBrand?.imagen_principal);
   const selectedBrandWebsite = normalizeWebsiteUrl(selectedBrand?.url_sitio_web);
   const selectedBrandDescription = sanitizeDbText(selectedBrand?.descripcion);
+  const pageType = getPageTypeFromPath(pathname ?? "/");
 
   const supportPhone = useMemo(
     () => extractSupportPhoneFromBrand(selectedBrand, fallbackPhone),
@@ -350,6 +355,14 @@ export default function SoportePageContent() {
 
       <section className="relative z-10 -mt-10 pb-10 md:-mt-12 md:pb-12">
         <div className="mx-auto w-full max-w-[1500px] px-6 sm:px-8 lg:px-10">
+          <Breadcrumbs
+            className="mb-4"
+            items={[
+              { label: "Inicio", href: "/" },
+              { label: "Soporte" },
+            ]}
+          />
+
           <div className="overflow-hidden rounded-[30px] bg-[#DDE0E8] shadow-[0_18px_38px_rgba(15,23,42,0.14)]">
             <div className="grid grid-cols-1 lg:grid-cols-[320px_minmax(0,1fr)] lg:items-stretch">
               <aside className="flex flex-col bg-[#5F6B76] px-4 py-5 sm:px-5 sm:py-6 lg:h-full lg:min-h-0 lg:overflow-hidden lg:px-6">
@@ -658,6 +671,13 @@ export default function SoportePageContent() {
                           href={whatsappUrl}
                           target="_blank"
                           rel="noopener noreferrer"
+                          onClick={() =>
+                            trackChatOpen({
+                              chat_provider: "whatsapp",
+                              page_type: pageType,
+                              source_section: "support_whatsapp",
+                            })
+                          }
                           className="mt-3 inline-flex h-10 items-center justify-center rounded-full border border-[#F54029] px-4 text-[14px] font-semibold text-[#F54029] transition hover:bg-[#F54029] hover:text-white"
                         >
                           Abrir WhatsApp

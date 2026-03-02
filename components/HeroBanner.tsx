@@ -2,9 +2,10 @@
 
 /* eslint-disable @next/next/no-img-element */
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { getBanners, getInformacion, toPublicStorageUrl } from "@/lib/api";
+import { getPageTypeFromPath, trackGenerateLead } from "@/lib/analytics/ga4";
 
 type RawBannerRecord = Record<string, unknown>;
 
@@ -101,6 +102,7 @@ function SearchIcon() {
 
 export default function HeroBanner() {
   const router = useRouter();
+  const pathname = usePathname();
   const [slides, setSlides] = useState<HeroSlide[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -233,6 +235,14 @@ export default function HeroBanner() {
     [router, searchValue],
   );
 
+  const handleCotizarClick = useCallback(() => {
+    trackGenerateLead({
+      cta_name: "cotizar",
+      page_type: getPageTypeFromPath(pathname ?? "/"),
+      source_section: "home_hero",
+    });
+  }, [pathname]);
+
   const showFallbackBackground = visibleSlides.length === 0;
 
   return (
@@ -273,6 +283,7 @@ export default function HeroBanner() {
 
             <Link
               href="/cotizar"
+              onClick={handleCotizarClick}
               className="mt-6 inline-flex h-[49.954px] w-[191px] items-center justify-center rounded-[19.1px] bg-[#ef4f39] text-[18px] font-normal text-white transition-colors hover:bg-[#de3f2a] lg:text-[22.175px]"
             >
               Cotiza ahora

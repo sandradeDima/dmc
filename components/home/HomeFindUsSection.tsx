@@ -2,8 +2,14 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { getInformacion, InformacionItem } from "@/lib/api";
+import {
+  getPageTypeFromPath,
+  trackChatOpen,
+  trackGenerateLead,
+} from "@/lib/analytics/ga4";
 import {
   getFallbackMapEmbedUrl,
   isPotentialGoogleMapsShortUrl,
@@ -48,6 +54,7 @@ type CtaCardProps = {
   imageSrc: string;
   href: string;
   external?: boolean;
+  onClick?: () => void;
 };
 
 function CtaCard({
@@ -56,6 +63,7 @@ function CtaCard({
   imageSrc,
   href,
   external = false,
+  onClick,
 }: CtaCardProps) {
   const content = (
     <article className="group relative isolate h-[170px] overflow-hidden rounded-[34px] shadow-[0_12px_30px_rgba(15,23,42,0.14)] sm:h-[186px] lg:h-[198px]">
@@ -83,14 +91,14 @@ function CtaCard({
 
   if (external) {
     return (
-      <a href={href} target="_blank" rel="noopener noreferrer" className="block">
+      <a href={href} target="_blank" rel="noopener noreferrer" className="block" onClick={onClick}>
         {content}
       </a>
     );
   }
 
   return (
-    <Link href={href} className="block">
+    <Link href={href} className="block" onClick={onClick}>
       {content}
     </Link>
   );
@@ -127,6 +135,7 @@ function InfoBlock({ title, lines }: { title: string; lines: string[] }) {
 }
 
 export default function HomeFindUsSection() {
+  const pathname = usePathname();
   const [informacion, setInformacion] = useState<InformacionItem | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [hasError, setHasError] = useState(false);
@@ -240,6 +249,7 @@ export default function HomeFindUsSection() {
       external: true,
     };
   }, [informacion?.telefono]);
+  const pageType = getPageTypeFromPath(pathname ?? "/");
 
   return (
     <section className="relative overflow-hidden bg-[#ECEEF1] py-16 sm:py-20">
@@ -263,6 +273,13 @@ export default function HomeFindUsSection() {
                 titleLineTwo="asesoría gratuita"
                 imageSrc="/assets/static/asesoria.png"
                 href="/cotizar"
+                onClick={() =>
+                  trackGenerateLead({
+                    cta_name: "cotizar",
+                    page_type: pageType,
+                    source_section: "home_find_us",
+                  })
+                }
               />
               <CtaCard
                 titleLineOne="Contáctate Por"
@@ -270,6 +287,13 @@ export default function HomeFindUsSection() {
                 imageSrc="/assets/static/whatsapp.png"
                 href={whatsappTarget.href}
                 external={whatsappTarget.external}
+                onClick={() =>
+                  trackChatOpen({
+                    chat_provider: "whatsapp",
+                    page_type: pageType,
+                    source_section: "home_find_us_whatsapp",
+                  })
+                }
               />
             </div>
 

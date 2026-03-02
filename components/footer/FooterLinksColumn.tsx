@@ -2,11 +2,14 @@
 
 import Link from "next/link";
 import type { ReactNode } from "react";
+import { usePathname } from "next/navigation";
+import { getPageTypeFromPath, trackGenerateLead } from "@/lib/analytics/ga4";
 
 export type FooterLinkItem = {
   label: string;
   href: string;
   icon: ReactNode;
+  analyticsSourceSection?: string;
 };
 
 type FooterLinksColumnProps = {
@@ -20,6 +23,19 @@ export default function FooterLinksColumn({
   links,
   className = "",
 }: FooterLinksColumnProps) {
+  const pathname = usePathname();
+  const pageType = getPageTypeFromPath(pathname ?? "/");
+
+  const handleLinkClick = (link: FooterLinkItem) => {
+    if (!link.analyticsSourceSection) return;
+
+    trackGenerateLead({
+      cta_name: "cotizar",
+      page_type: pageType,
+      source_section: link.analyticsSourceSection,
+    });
+  };
+
   return (
     <div className={className}>
       {title ? (
@@ -33,6 +49,7 @@ export default function FooterLinksColumn({
           <li key={link.href}>
             <Link
               href={link.href}
+              onClick={() => handleLinkClick(link)}
               className="group inline-flex items-center gap-3 text-[15px] text-white/90 transition-colors hover:text-[#F54029] sm:text-[17px] lg:text-[18px]"
             >
               <span className="text-white/90 transition-colors group-hover:text-[#F54029]">
