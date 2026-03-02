@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { postCotizacion } from "@/lib/api";
+import { postCotizacion, PublicApiError } from "@/lib/api";
 
 type CotizacionPerfil = "corporativa_personal" | "distribucion";
 
@@ -16,6 +16,12 @@ type CotizacionFormValues = {
 };
 
 type FormErrors = Partial<Record<keyof CotizacionFormValues, string>>;
+
+const MAX_NOMBRE_LENGTH = 80;
+const MAX_EMAIL_LENGTH = 120;
+const MIN_PHONE_DIGITS = 7;
+const MAX_PHONE_DIGITS = 15;
+const MAX_MENSAJE_LENGTH = 500;
 
 const INITIAL_VALUES: CotizacionFormValues = {
   nombre_apellido: "",
@@ -40,26 +46,62 @@ const CITY_OPTIONS = [
 ];
 
 function sanitizePhoneInput(value: string): string {
-  return value.replace(/[^\d+\-\s()]/g, "");
+  return value.replace(/[^\d+\-\s()]/g, "").slice(0, 24);
+}
+
+function isValidPhone(value: string): boolean {
+  const trimmed = value.trim();
+  if (!trimmed) return false;
+
+  if (!/^(?:\+?\d[\d\s\-()]*)$/.test(trimmed)) {
+    return false;
+  }
+
+  const digits = trimmed.replace(/[^\d]/g, "");
+  return digits.length >= MIN_PHONE_DIGITS && digits.length <= MAX_PHONE_DIGITS;
 }
 
 function isValidEmail(value: string): boolean {
-  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim());
+  const normalized = value.trim().toLowerCase();
+  if (!normalized) return false;
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalized)) return false;
+
+  const [localPart, domain] = normalized.split("@");
+  if (!localPart || !domain) return false;
+
+  if (
+    localPart.startsWith(".") ||
+    localPart.endsWith(".") ||
+    localPart.includes("..")
+  ) {
+    return false;
+  }
+
+  if (domain.startsWith(".") || domain.endsWith(".") || domain.includes("..")) {
+    return false;
+  }
+
+  const domainParts = domain.split(".");
+  if (domainParts.some((part) => part.length === 0)) return false;
+
+  const tld = domainParts[domainParts.length - 1] ?? "";
+  return tld.length >= 2;
 }
 
 function validateForm(values: CotizacionFormValues): FormErrors {
   const errors: FormErrors = {};
 
-  if (!values.nombre_apellido.trim()) {
+  const nombre = values.nombre_apellido.trim();
+  if (!nombre) {
     errors.nombre_apellido = "El nombre y apellido es obligatorio.";
+  } else if (nombre.length > MAX_NOMBRE_LENGTH) {
+    errors.nombre_apellido = `Máximo ${MAX_NOMBRE_LENGTH} caracteres.`;
   }
 
-  const phone = values.telefono.trim();
-  const digits = phone.replace(/[^\d]/g, "");
-  if (!phone) {
+  if (!values.telefono.trim()) {
     errors.telefono = "El teléfono es obligatorio.";
-  } else if (digits.length < 6) {
-    errors.telefono = "Ingresa un teléfono válido.";
+  } else if (!isValidPhone(values.telefono)) {
+    errors.telefono = `Ingresa un teléfono válido (${MIN_PHONE_DIGITS}-${MAX_PHONE_DIGITS} dígitos).`;
   }
 
   if (!values.cliente_exterior && !values.ciudad) {
@@ -72,6 +114,11 @@ function validateForm(values: CotizacionFormValues): FormErrors {
 
   if (!isValidEmail(values.email)) {
     errors.email = "Ingresa un correo válido.";
+  }
+
+  const mensaje = values.mensaje.trim();
+  if (mensaje.length > MAX_MENSAJE_LENGTH) {
+    errors.mensaje = `Máximo ${MAX_MENSAJE_LENGTH} caracteres.`;
   }
 
   return errors;
@@ -165,10 +212,16 @@ export default function CotizacionFormCard({ embedded = false }: CotizacionFormC
       });
       setValues(INITIAL_VALUES);
       setErrors({});
-    } catch {
+    } catch (error) {
+      const apiMessage =
+        error instanceof PublicApiError
+          ? error.detalle?.trim() || error.message?.trim()
+          : "";
+
       setFeedback({
         type: "error",
-        message: "No se pudo enviar la cotización. Intenta nuevamente.",
+        message:
+          apiMessage || "No se pudo enviar la cotización. Revisa los datos e inténtalo nuevamente.",
       });
     } finally {
       setIsSubmitting(false);
@@ -199,7 +252,13 @@ export default function CotizacionFormCard({ embedded = false }: CotizacionFormC
             id="nombre_apellido"
             type="text"
             value={values.nombre_apellido}
-            onChange={(event) => updateField("nombre_apellido", event.target.value)}
+            onChange={(event) =>
+              updateField(
+                "nombre_apellido",
+                event.target.value.slice(0, MAX_NOMBRE_LENGTH),
+              )
+            }
+            maxLength={MAX_NOMBRE_LENGTH}
             required
             className="h-10 w-full rounded-[12px] border border-transparent bg-white px-3.5 text-[13px] text-[#334155] outline-none transition focus:border-[#F54029]/50"
             placeholder="Nombre y apellido"
@@ -208,6 +267,9 @@ export default function CotizacionFormCard({ embedded = false }: CotizacionFormC
           {errors.nombre_apellido ? (
             <p className="mt-1 text-[12px] text-[#D33E2B]">{errors.nombre_apellido}</p>
           ) : null}
+          <p className="mt-1 text-[11px] text-[#7A8594]">
+            Máximo {MAX_NOMBRE_LENGTH} caracteres.
+          </p>
         </div>
 
         <div>
@@ -245,7 +307,10 @@ export default function CotizacionFormCard({ embedded = false }: CotizacionFormC
             id="email"
             type="email"
             value={values.email}
-            onChange={(event) => updateField("email", event.target.value)}
+            onChange={(event) =>
+              updateField("email", event.target.value.slice(0, MAX_EMAIL_LENGTH))
+            }
+            maxLength={MAX_EMAIL_LENGTH}
             required
             className="h-10 w-full rounded-[12px] border border-transparent bg-white px-3.5 text-[13px] text-[#334155] outline-none transition focus:border-[#F54029]/50"
             placeholder="correo@ejemplo.com"
@@ -376,10 +441,19 @@ export default function CotizacionFormCard({ embedded = false }: CotizacionFormC
           <textarea
             id="mensaje"
             value={values.mensaje}
-            onChange={(event) => updateField("mensaje", event.target.value)}
+            onChange={(event) =>
+              updateField("mensaje", event.target.value.slice(0, MAX_MENSAJE_LENGTH))
+            }
+            maxLength={MAX_MENSAJE_LENGTH}
             className="min-h-[72px] w-full resize-y rounded-[12px] border border-transparent bg-white px-3.5 py-2.5 text-[13px] text-[#334155] outline-none transition focus:border-[#F54029]/50"
             placeholder="Escribe tu solicitud"
           />
+          <p className="mt-1 text-right text-[11px] text-[#7A8594]">
+            {values.mensaje.length}/{MAX_MENSAJE_LENGTH}
+          </p>
+          <p className="text-[11px] text-[#7A8594]">
+            Máximo {MAX_MENSAJE_LENGTH} caracteres.
+          </p>
         </div>
 
         <div className="flex gap-3 pt-1">

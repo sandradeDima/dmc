@@ -508,7 +508,7 @@ export default function ChatWidget() {
         setConversacionId(data.nuevo_mensaje.conversacion_id);
       }
 
-      if (data.mensaje_bienvenida) {
+      if (data.mensaje_bienvenida && !realtimeActive) {
         const exists = messagesRef.current.some(
           (item) =>
             item.emisor === "sistema" && item.mensaje === data.mensaje_bienvenida,

@@ -17,14 +17,19 @@ type HeroSlide = {
 
 const AUTOPLAY_INTERVAL_MS = 6000;
 const SWIPE_THRESHOLD_PX = 48;
-const DEFAULT_HOME_HEADER_TEXT =
-  "Horem ipsum dolor sit amet, consectetur adipiscing elit.";
+const LOREM_IPSUM_PATTERN = /\b(?:lorem|horem)\s+ipsum\b/i;
 
 function asNonEmptyString(value: unknown): string | null {
   if (typeof value !== "string") return null;
   const trimmed = value.trim();
 
   return trimmed.length > 0 ? trimmed : null;
+}
+
+function sanitizeDbText(value: unknown): string {
+  const text = asNonEmptyString(value);
+  if (!text) return "";
+  return LOREM_IPSUM_PATTERN.test(text) ? "" : text;
 }
 
 function mapToSlides(items: RawBannerRecord[]): HeroSlide[] {
@@ -104,7 +109,7 @@ export default function HeroBanner() {
   const [failedSlideIds, setFailedSlideIds] = useState<string[]>([]);
   const [touchStartX, setTouchStartX] = useState<number | null>(null);
   const [touchEndX, setTouchEndX] = useState<number | null>(null);
-  const [mainHeaderText, setMainHeaderText] = useState(DEFAULT_HOME_HEADER_TEXT);
+  const [mainHeaderText, setMainHeaderText] = useState("");
   const [searchValue, setSearchValue] = useState("");
 
   useEffect(() => {
@@ -135,10 +140,7 @@ export default function HeroBanner() {
         const response = await getInformacion();
         if (controller.signal.aborted) return;
 
-        const textoHome = response?.Informacion?.texto_home?.trim();
-        if (textoHome) {
-          setMainHeaderText(textoHome);
-        }
+        setMainHeaderText(sanitizeDbText(response?.Informacion?.texto_home));
       } catch {
         if (controller.signal.aborted) return;
       }

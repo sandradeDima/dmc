@@ -36,6 +36,7 @@ const INITIAL_VALUES: SoporteFormValues = {
 
 const HOVER_GRADIENT =
   "linear-gradient(138deg, #EF4F39 0%, rgba(86,100,111,0.8) 78%, rgba(86,100,111,1) 100%)";
+const LOREM_IPSUM_PATTERN = /\b(?:lorem|horem)\s+ipsum\b/i;
 
 function normalizeWebsiteUrl(url: string | null | undefined): string | null {
   if (!url) return null;
@@ -45,6 +46,12 @@ function normalizeWebsiteUrl(url: string | null | undefined): string | null {
   if (/^https?:\/\//i.test(trimmed)) return trimmed;
 
   return `https://${trimmed}`;
+}
+
+function sanitizeDbText(value: string | null | undefined): string {
+  const trimmed = value?.trim() ?? "";
+  if (!trimmed) return "";
+  return LOREM_IPSUM_PATTERN.test(trimmed) ? "" : trimmed;
 }
 
 function filterActiveBrands(items: MarcaItem[]): MarcaItem[] {
@@ -272,6 +279,7 @@ export default function SoportePageContent() {
 
   const selectedBrandLogo = buildImageUrl(selectedBrand?.imagen_principal);
   const selectedBrandWebsite = normalizeWebsiteUrl(selectedBrand?.url_sitio_web);
+  const selectedBrandDescription = sanitizeDbText(selectedBrand?.descripcion);
 
   const supportPhone = useMemo(
     () => extractSupportPhoneFromBrand(selectedBrand, fallbackPhone),
@@ -456,10 +464,11 @@ export default function SoportePageContent() {
                       <h3 className="text-[22px] font-semibold leading-none text-[#2F3B52]">
                         {selectedBrand?.nombre || "Selecciona una marca"}
                       </h3>
-                      <p className="mt-2 text-[14px] leading-relaxed text-[#677486]">
-                        {selectedBrand?.descripcion?.trim() ||
-                          "Completa el formulario para que nuestro equipo de soporte te contacte."}
-                      </p>
+                      {selectedBrandDescription ? (
+                        <p className="mt-2 text-[14px] leading-relaxed text-[#677486]">
+                          {selectedBrandDescription}
+                        </p>
+                      ) : null}
                     </div>
                   </div>
 
