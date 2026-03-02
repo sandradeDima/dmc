@@ -43,7 +43,7 @@ export default function RootLayout({
       >
         {gaId ? (
           <>
-            <Script
+            <Script async
               src={`https://www.googletagmanager.com/gtag/js?id=${gaId}`}
               strategy="afterInteractive"
             />
