@@ -450,13 +450,6 @@ export default function ChatWidget() {
           lead_type: "support",
           option_slug: option.slug,
         });
-        appendMessages([
-          createSystemMessage(
-            "Estamos transfiriendo tu conversación con un operador.",
-            "system",
-          ),
-        ]);
-        setEsperandoOperador(true);
         await initializeChat(false);
         return;
       }
