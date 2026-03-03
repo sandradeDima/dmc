@@ -6,13 +6,15 @@ import {
   Categoria,
   getCategorias,
   getMarcasList,
-  getProductosList,
   MarcaItem,
   ProductosPaginationData,
+  SearchSuggestionItem,
 } from "@/lib/api";
 import BrandProductCard from "@/components/marcas/BrandProductCard";
 import MarcasPagination from "@/components/marcas/MarcasPagination";
 import Breadcrumbs from "@/components/Breadcrumbs";
+import SmartSearchBar from "@/components/search/SmartSearchBar";
+import { searchProductos } from "@/lib/api/searchApi";
 import CatalogoHero from "./CatalogoHero";
 import {
   buildProductosQuery,
@@ -26,21 +28,6 @@ import {
   parsePageValue,
   parseToggleFilter,
 } from "./catalogoUtils";
-
-function SearchIcon({ className = "" }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 24 24" aria-hidden="true" className={className}>
-      <circle cx="11" cy="11" r="6.5" fill="none" stroke="currentColor" strokeWidth="2" />
-      <path
-        d="m16 16 4.2 4.2"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-      />
-    </svg>
-  );
-}
 
 function ChevronIcon({ className = "" }: { className?: string }) {
   return (
@@ -134,7 +121,7 @@ export default function CatalogoPageContent() {
 
   const requestedFilters = useMemo<CatalogoFilters>(
     () => ({
-      nombre: searchParams.get("nombre")?.trim() ?? "",
+      nombre: searchParams.get("q")?.trim() ?? searchParams.get("nombre")?.trim() ?? "",
       marca: parseNumberFilter(searchParams.get("marca")),
       categoria: parseNumberFilter(searchParams.get("categoria")),
       nuevo: parseToggleFilter(searchParams.get("nuevo")),
@@ -212,20 +199,23 @@ export default function CatalogoPageContent() {
 
   useEffect(() => {
     let isCancelled = false;
+    const controller = new AbortController();
 
     const loadProductos = async () => {
       setIsLoadingProducts(true);
       setHasProductsError(false);
 
       try {
-        const response = await getProductosList({
+        const response = await searchProductos({
           page: currentPage,
           per_page: 12,
-          nombre: searchTerm || undefined,
+          q: searchTerm || undefined,
           marca: selectedMarca || undefined,
           categoria: selectedCategoria || undefined,
           nuevo: nuevoOnly ? "si" : undefined,
           destacado: destacadoOnly ? "si" : undefined,
+        }, {
+          signal: controller.signal,
         });
 
         if (isCancelled) return;
@@ -250,6 +240,7 @@ export default function CatalogoPageContent() {
 
     return () => {
       isCancelled = true;
+      controller.abort();
     };
   }, [currentPage, destacadoOnly, nuevoOnly, searchTerm, selectedCategoria, selectedMarca]);
 
@@ -322,10 +313,9 @@ export default function CatalogoPageContent() {
     updateUrl(merged);
   };
 
-  const handleSearchSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-
-    const normalized = searchInput.trim();
+  const handleSearchSubmit = (query: string) => {
+    const normalized = query.trim();
+    setSearchInput(normalized);
     setSearchTerm(normalized);
     setCurrentPage(1);
 
@@ -334,6 +324,11 @@ export default function CatalogoPageContent() {
       nombre: normalized,
       page: 1,
     });
+  };
+
+  const handleSearchSuggestionSelect = (item: SearchSuggestionItem) => {
+    if (!item.slug) return;
+    router.push(`/producto/${item.slug}`);
   };
 
   const handleBrandToggle = (id: number) => {
@@ -389,24 +384,23 @@ export default function CatalogoPageContent() {
               </div>
 
               <div className="space-y-4 p-4">
-                <form onSubmit={handleSearchSubmit} className="relative">
-                  <input
-                    type="text"
-                    value={searchInput}
-                    onChange={(event) => setSearchInput(event.target.value)}
-                    placeholder="Buscar producto"
-                    className="h-9 w-full rounded-full border border-[#D4D9E1] bg-white px-3 pr-10 text-[13px] text-[#4E5968] placeholder:text-[#9AA3AE] outline-none transition focus:border-[#F54029]/60"
-                    aria-label="Buscar producto"
-                  />
-                  <button
-                    type="submit"
-                    disabled={isLoadingProducts}
-                    className="absolute right-2 top-1/2 inline-flex h-6 w-6 -translate-y-1/2 items-center justify-center rounded-full text-[#F54029] transition hover:bg-[#F54029]/10 disabled:opacity-50"
-                    aria-label="Buscar"
-                  >
-                    <SearchIcon className="h-4 w-4" />
-                  </button>
-                </form>
+                <SmartSearchBar
+                  value={searchInput}
+                  onValueChange={setSearchInput}
+                  onSubmit={handleSearchSubmit}
+                  onSuggestionSelect={handleSearchSuggestionSelect}
+                  placeholder="Buscar producto"
+                  ariaLabel="Buscar producto"
+                  disabled={isLoadingProducts}
+                  suggestionFilters={{
+                    marca: selectedMarca || undefined,
+                    categoria: selectedCategoria || undefined,
+                  }}
+                  formClassName="relative flex items-center"
+                  inputClassName="h-9 w-full rounded-full border border-[#D4D9E1] bg-white px-3 pr-10 text-[13px] text-[#4E5968] placeholder:text-[#9AA3AE] outline-none transition focus:border-[#F54029]/60"
+                  buttonClassName="absolute right-2 top-1/2 inline-flex h-6 w-6 -translate-y-1/2 items-center justify-center rounded-full text-[#F54029] transition hover:bg-[#F54029]/10 disabled:opacity-50"
+                  dropdownClassName="top-full mt-2"
+                />
 
                 <div className="space-y-2 rounded-[14px] bg-[#EEF1F5] p-3">
                   <button

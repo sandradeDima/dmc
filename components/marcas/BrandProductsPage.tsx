@@ -4,16 +4,17 @@ import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import {
-  getMarcasList,
-  getProductosList,
+  getMarcaDetalle,
   MarcaItem,
   ProductoItem,
   ProductosPaginationData,
+  SearchSuggestionItem,
 } from "@/lib/api";
 import Breadcrumbs from "@/components/Breadcrumbs";
 import BrandProductCard from "./BrandProductCard";
 import BrandProductsHero from "./BrandProductsHero";
 import MarcasPagination from "./MarcasPagination";
+import { searchProductos } from "@/lib/api/searchApi";
 import {
   formatBrandTitleFromSlug,
   normalizeBrandValue,
@@ -60,40 +61,8 @@ function filterProductsByBrand(
   return withBrandName.filter((item) => matchesBrand(item, normalizedBrandSlug));
 }
 
-function matchesMarcaSlug(marca: MarcaItem, normalizedSlug: string): boolean {
-  if (!normalizedSlug) return false;
-
-  const normalizedMarcaSlug = normalizeBrandValue(marca.slug);
-  const normalizedMarcaNombre = normalizeBrandValue(marca.nombre);
-
-  return (
-    normalizedMarcaSlug === normalizedSlug ||
-    normalizedMarcaNombre === normalizedSlug ||
-    normalizedMarcaSlug.includes(normalizedSlug) ||
-    normalizedSlug.includes(normalizedMarcaSlug)
-  );
-}
-
 async function resolveBrandBySlug(slug: string): Promise<MarcaItem | null> {
-  const normalizedSlug = normalizeBrandValue(slug);
-  if (!normalizedSlug) return null;
-
-  let currentPage = 1;
-  while (true) {
-    const response = await getMarcasList({
-      page: currentPage,
-      per_page: 100,
-    });
-
-    const match = response.data.find((marca) => matchesMarcaSlug(marca, normalizedSlug));
-    if (match) return match;
-
-    if (!response.next_page_url || currentPage >= response.last_page) {
-      return null;
-    }
-
-    currentPage += 1;
-  }
+  return getMarcaDetalle(slug).catch(() => null);
 }
 
 function ArrowLeftIcon() {
@@ -140,7 +109,9 @@ export default function BrandProductsPage({ slug }: BrandProductsPageProps) {
   const searchParams = useSearchParams();
 
   const requestedPage = safePageValue(searchParams.get("page"));
-  const requestedNombre = normalizeSearchValue(searchParams.get("nombre"));
+  const requestedNombre = normalizeSearchValue(
+    searchParams.get("q") ?? searchParams.get("nombre"),
+  );
 
   const normalizedSlug = normalizeBrandValue(slug);
   const fallbackTitle = formatBrandTitleFromSlug(slug);
@@ -224,11 +195,14 @@ export default function BrandProductsPage({ slug }: BrandProductsPageProps) {
       setHasError(false);
 
       try {
-        const response = await getProductosList({
+        const response = await searchProductos({
           page: currentPage,
           per_page: 12,
-          nombre: searchTerm || undefined,
-          marca: brandId,
+          q: searchTerm || undefined,
+          marca: brandId || undefined,
+          marca_slug: brandId ? undefined : slug,
+        }, {
+          signal: controller.signal,
         });
         if (isCancelled || controller.signal.aborted) return;
 
@@ -262,7 +236,7 @@ export default function BrandProductsPage({ slug }: BrandProductsPageProps) {
       isCancelled = true;
       controller.abort();
     };
-  }, [brandId, currentPage, isBrandResolved, normalizedBrandMatch, searchTerm]);
+  }, [brandId, currentPage, isBrandResolved, normalizedBrandMatch, searchTerm, slug]);
 
   const visibleProducts = useMemo(() => paginationData?.data ?? [], [paginationData?.data]);
 
@@ -272,7 +246,7 @@ export default function BrandProductsPage({ slug }: BrandProductsPageProps) {
     const params = new URLSearchParams();
 
     if (nombre) {
-      params.set("nombre", nombre);
+      params.set("q", nombre);
     }
 
     if (page > 1) {
@@ -283,11 +257,17 @@ export default function BrandProductsPage({ slug }: BrandProductsPageProps) {
     router.replace(query ? `${pathname}?${query}` : pathname, { scroll: false });
   };
 
-  const handleSearchSubmit = () => {
-    const normalized = searchInput.trim();
+  const handleSearchSubmit = (query: string) => {
+    const normalized = query.trim();
+    setSearchInput(normalized);
     setCurrentPage(1);
     setSearchTerm(normalized);
     updateUrl(1, normalized);
+  };
+
+  const handleSearchSuggestionSelect = (item: SearchSuggestionItem) => {
+    if (!item.slug) return;
+    router.push(`/producto/${item.slug}`);
   };
 
   const handlePageChange = (page: number) => {
@@ -300,9 +280,11 @@ export default function BrandProductsPage({ slug }: BrandProductsPageProps) {
     <div className="min-h-screen bg-[#E8E8E8]">
       <BrandProductsHero
         title={brandTitle}
+        brandSlug={slug}
         searchValue={searchInput}
         onSearchValueChange={setSearchInput}
         onSearchSubmit={handleSearchSubmit}
+        onSuggestionSelect={handleSearchSuggestionSelect}
         isLoading={isLoading}
       />
 

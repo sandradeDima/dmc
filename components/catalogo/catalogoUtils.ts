@@ -41,7 +41,7 @@ export function buildProductosQuery(filters: CatalogoFilters): string {
   const params = new URLSearchParams();
 
   if (filters.nombre.trim()) {
-    params.set("nombre", filters.nombre.trim());
+    params.set("q", filters.nombre.trim());
   }
 
   if (filters.marca) {

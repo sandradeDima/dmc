@@ -1,34 +1,26 @@
 "use client";
 
+import SmartSearchBar from "@/components/search/SmartSearchBar";
+import { SearchSuggestionItem } from "@/lib/api";
+
 type BrandProductsHeroProps = {
   title: string;
   searchValue: string;
+  brandSlug: string;
   isLoading?: boolean;
   onSearchValueChange: (value: string) => void;
-  onSearchSubmit: () => void;
+  onSearchSubmit: (query: string) => void;
+  onSuggestionSelect?: (item: SearchSuggestionItem) => void;
 };
-
-function SearchIcon() {
-  return (
-    <svg viewBox="0 0 24 24" aria-hidden="true" className="h-5 w-5">
-      <circle cx="11" cy="11" r="6.5" fill="none" stroke="currentColor" strokeWidth="2" />
-      <path
-        d="m16 16 4.2 4.2"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-      />
-    </svg>
-  );
-}
 
 export default function BrandProductsHero({
   title,
   searchValue,
+  brandSlug,
   isLoading = false,
   onSearchValueChange,
   onSearchSubmit,
+  onSuggestionSelect,
 }: BrandProductsHeroProps) {
   return (
     <section className="relative h-[400px] overflow-hidden md:h-[477px]">
@@ -44,33 +36,23 @@ export default function BrandProductsHero({
             {title}
           </h1>
 
-          <form
-            className="mx-auto mt-12 flex w-full max-w-[720px] items-center rounded-full bg-white p-2 pl-5 shadow-[0_12px_30px_rgba(15,23,42,0.2)]"
-            onSubmit={(event) => {
-              event.preventDefault();
-              onSearchSubmit();
-            }}
-          >
-            <input
-              type="text"
-              value={searchValue}
-              onChange={(event) => onSearchValueChange(event.target.value)}
-              placeholder="Buscar productos"
-              className="h-10 w-full border-0 bg-transparent text-[15px] text-[#4F5965] placeholder:text-[#98A0AB] outline-none"
-              aria-label="Buscar productos de la marca"
-            />
-
-            <button
-              type="submit"
-              disabled={isLoading}
-              className={`inline-flex h-10 w-10 items-center justify-center rounded-full text-[#F54029] transition ${
-                isLoading ? "cursor-not-allowed opacity-50" : "hover:bg-[#F54029]/10"
-              }`}
-              aria-label="Buscar"
-            >
-              <SearchIcon />
-            </button>
-          </form>
+          <SmartSearchBar
+            value={searchValue}
+            onValueChange={onSearchValueChange}
+            onSubmit={onSearchSubmit}
+            onSuggestionSelect={onSuggestionSelect}
+            placeholder="Buscar productos"
+            ariaLabel="Buscar productos de la marca"
+            disabled={isLoading}
+            suggestionFilters={{ marca_slug: brandSlug }}
+            className="mx-auto mt-12 w-full max-w-[720px]"
+            formClassName="flex w-full items-center rounded-full bg-white p-2 pl-5 shadow-[0_12px_30px_rgba(15,23,42,0.2)]"
+            inputClassName="h-10 w-full border-0 bg-transparent text-[15px] text-[#4F5965] placeholder:text-[#98A0AB] outline-none"
+            buttonClassName={`inline-flex h-10 w-10 items-center justify-center rounded-full text-[#F54029] transition ${
+              isLoading ? "cursor-not-allowed opacity-50" : "hover:bg-[#F54029]/10"
+            }`}
+            dropdownClassName="top-full mt-2"
+          />
         </div>
       </div>
     </section>

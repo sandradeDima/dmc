@@ -88,7 +88,7 @@ function buildUrl(path: string, query?: QueryParams): string {
   return url.toString();
 }
 
-async function requestPublicApi<T>(
+export async function requestPublicApi<T>(
   path: string,
   options?: {
     method?: "GET" | "POST";
@@ -612,6 +612,10 @@ export async function getMarcas(query?: MarcasQuery) {
 
 export async function getMarcasList(query?: MarcasQuery) {
   return requestPublicApi<MarcasPaginationData>("/marcas", { query });
+}
+
+export async function getMarcaDetalle(slug: string) {
+  return requestPublicApi<MarcaItem | null>(`/marcas/${slug}`);
 }
 
 export async function getMarcasInicio(query?: BaseListQuery) {

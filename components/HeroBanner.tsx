@@ -4,6 +4,8 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
+import SmartSearchBar from "@/components/search/SmartSearchBar";
+import { SearchSuggestionItem } from "@/lib/api";
 import { getBanners, getInformacion, toPublicStorageUrl } from "@/lib/api";
 import { getPageTypeFromPath, trackGenerateLead } from "@/lib/analytics/ga4";
 
@@ -78,26 +80,6 @@ async function fetchHeroSlides(signal: AbortSignal): Promise<HeroSlide[]> {
   }
 
   return mapToSlides(items as unknown as RawBannerRecord[]);
-}
-
-function SearchIcon() {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      className="h-6 w-6 lg:h-[38px] lg:w-[38px]"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-      aria-hidden
-    >
-      <path
-        d="M20 20L16.3 16.3M18 11C18 14.866 14.866 18 11 18C7.13401 18 4 14.866 4 11C4 7.13401 7.13401 4 11 4C14.866 4 18 7.13401 18 11Z"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  );
 }
 
 export default function HeroBanner() {
@@ -220,19 +202,25 @@ export default function HeroBanner() {
   };
 
   const handleSearchSubmit = useCallback(
-    (event: React.FormEvent<HTMLFormElement>) => {
-      event.preventDefault();
-
-      const normalized = searchValue.trim();
+    (query: string) => {
+      const normalized = query.trim();
       const params = new URLSearchParams();
 
       if (normalized) {
-        params.set("nombre", normalized);
+        params.set("q", normalized);
       }
 
       router.push(params.toString() ? `/catalogo?${params.toString()}` : "/catalogo");
     },
-    [router, searchValue],
+    [router],
+  );
+
+  const handleSearchSuggestionSelect = useCallback(
+    (item: SearchSuggestionItem) => {
+      if (!item.slug) return;
+      router.push(`/producto/${item.slug}`);
+    },
+    [router],
   );
 
   const handleCotizarClick = useCallback(() => {
@@ -339,26 +327,19 @@ export default function HeroBanner() {
       </div>
 
       <div className="pointer-events-none absolute inset-x-0 bottom-0 z-30 flex translate-y-1/2 justify-center px-4">
-        <form
+        <SmartSearchBar
+          value={searchValue}
+          onValueChange={setSearchValue}
           onSubmit={handleSearchSubmit}
-          className="pointer-events-auto flex h-[58px] w-full max-w-[773px] items-center rounded-[42px] bg-[#eeeeee] pl-6 pr-3 shadow-[0px_3.387px_10.329px_0px_rgba(0,0,0,0.17)] md:h-[70px] md:pl-8 md:pr-4 lg:h-[82.973px]"
-        >
-          <input
-            type="text"
-            value={searchValue}
-            onChange={(event) => setSearchValue(event.target.value)}
-            placeholder="Buscar productos"
-            className="w-full bg-transparent text-[16px] font-light tracking-[0.2px] text-[#b6b6b6] placeholder:text-[16px] placeholder:font-light placeholder:text-[#b6b6b6] focus:outline-none md:text-[19px] md:placeholder:text-[19px] lg:text-[21.963px] lg:tracking-[0.439px] lg:placeholder:text-[21.963px]"
-            aria-label="Buscar productos"
-          />
-          <button
-            type="submit"
-            aria-label="Buscar productos"
-            className="flex h-[38px] w-[38px] items-center justify-center rounded-full text-[#ef4f39] transition-colors hover:bg-[#e2e2e2]"
-          >
-            <SearchIcon />
-          </button>
-        </form>
+          onSuggestionSelect={handleSearchSuggestionSelect}
+          placeholder="Buscar productos"
+          ariaLabel="Buscar productos"
+          className="pointer-events-auto w-full max-w-[773px]"
+          formClassName="flex h-[58px] w-full items-center rounded-[42px] bg-[#eeeeee] pl-6 pr-3 shadow-[0px_3.387px_10.329px_0px_rgba(0,0,0,0.17)] md:h-[70px] md:pl-8 md:pr-4 lg:h-[82.973px]"
+          inputClassName="w-full bg-transparent text-[16px] font-light tracking-[0.2px] text-[#5f6773] placeholder:text-[16px] placeholder:font-light placeholder:text-[#9da5b0] focus:outline-none md:text-[19px] md:placeholder:text-[19px] lg:text-[21.963px] lg:tracking-[0.439px] lg:placeholder:text-[21.963px]"
+          buttonClassName="flex h-[38px] w-[38px] items-center justify-center rounded-full text-[#ef4f39] transition-colors hover:bg-[#e2e2e2]"
+          dropdownClassName="top-full mt-2"
+        />
       </div>
     </section>
   );
