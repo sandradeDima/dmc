@@ -2,7 +2,7 @@
 
 /* eslint-disable @next/next/no-img-element */
 import Link from "next/link";
-import type { CSSProperties } from "react";
+import { useEffect, useState, type CSSProperties } from "react";
 import { toPublicStorageUrl } from "@/lib/api";
 
 export type ProductoInicioItem = {
@@ -32,10 +32,16 @@ function clampedTextStyle(lines: number): CSSProperties {
 export default function ProductCard({ product }: ProductCardProps) {
   const productHref = `/producto/${product.slug}`;
   const imageUrl = toPublicStorageUrl(product.imagen_principal);
+  const [hasImageError, setHasImageError] = useState(false);
   const altText = product.alt_imagen?.trim() || product.nombre;
   const titleText = product.title_imagen?.trim() || product.nombre;
   const description =
     product.descripcion_corta?.trim() || "Producto disponible en catálogo";
+  const showImage = Boolean(imageUrl) && !hasImageError;
+
+  useEffect(() => {
+    setHasImageError(false);
+  }, [imageUrl]);
 
   return (
     <article className="flex h-[402px] w-[294px] shrink-0 flex-col overflow-hidden rounded-[36px] bg-white shadow-[0_8px_22px_rgba(15,23,42,0.12)] ring-1 ring-slate-200/70">
@@ -43,13 +49,14 @@ export default function ProductCard({ product }: ProductCardProps) {
         href={productHref}
         className="group block h-[267px] w-[294px] overflow-hidden bg-[#F5F7FA] p-3"
       >
-        {imageUrl ? (
+        {showImage ? (
           <img
-            src={imageUrl}
+            src={imageUrl as string}
             alt={altText}
             title={titleText}
             className="h-full w-full object-contain transition-transform duration-300 ease-out group-hover:scale-105"
             loading="lazy"
+            onError={() => setHasImageError(true)}
           />
         ) : (
           <div className="flex h-full w-full items-center justify-center bg-slate-200 text-sm text-slate-500">
