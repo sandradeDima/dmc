@@ -2,9 +2,7 @@
 
 /* eslint-disable @next/next/no-img-element */
 import { useEffect, useMemo, useRef, useState } from "react";
-import { usePathname } from "next/navigation";
 import {
-  getInformacion,
   getMarcasList,
   MarcaItem,
   postSoporte,
@@ -12,14 +10,10 @@ import {
 import { buildImageUrl } from "@/components/marcas/marcasUtils";
 import SoporteHero from "./SoporteHero";
 import {
-  buildQrImageUrl,
-  extractSupportPhoneFromBrand,
-  generateQrValueForBrand,
   isValidEmail,
   sanitizePhoneInput,
 } from "./soporteUtils";
 import Breadcrumbs from "@/components/Breadcrumbs";
-import { getPageTypeFromPath, trackChatOpen } from "@/lib/analytics/ga4";
 
 type SoporteFormValues = {
   nombre_apellido: string;
@@ -110,56 +104,6 @@ function HeadsetIcon({ className = "" }: { className?: string }) {
   );
 }
 
-function PhoneIcon({ className = "" }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 24 24" aria-hidden="true" className={className}>
-      <path
-        d="M7.7 3h2.7c.5 0 .9.3 1 .8l.8 3.4a1 1 0 0 1-.4 1.1l-1.8 1.2c.9 1.9 2.4 3.5 4.2 4.5l1.4-1.7a1 1 0 0 1 1.1-.3l3.2 1a1 1 0 0 1 .7 1v2.8a1 1 0 0 1-.9 1c-8.2.8-14.8-5.8-14-14A1 1 0 0 1 7.7 3Z"
-        fill="currentColor"
-      />
-    </svg>
-  );
-}
-
-function MailIcon({ className = "" }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 24 24" aria-hidden="true" className={className}>
-      <rect
-        x="3"
-        y="5"
-        width="18"
-        height="14"
-        rx="2"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="1.9"
-      />
-      <path
-        d="m4 7 8 6 8-6"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="1.9"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  );
-}
-
-function QrIcon({ className = "" }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 24 24" aria-hidden="true" className={className}>
-      <rect x="3" y="3" width="7" height="7" rx="1.2" fill="none" stroke="currentColor" strokeWidth="1.8" />
-      <rect x="14" y="3" width="7" height="7" rx="1.2" fill="none" stroke="currentColor" strokeWidth="1.8" />
-      <rect x="3" y="14" width="7" height="7" rx="1.2" fill="none" stroke="currentColor" strokeWidth="1.8" />
-      <path
-        d="M15 15h2v2h-2zm4 0h2v2h-2zm-4 4h2v2h-2zm2-2h2v2h-2zm2 2h2v2h-2z"
-        fill="currentColor"
-      />
-    </svg>
-  );
-}
-
 function BrandSelectorSkeleton({ index }: { index: number }) {
   return (
     <div
@@ -203,11 +147,8 @@ function validateForm(values: SoporteFormValues, hasBrand: boolean): FormErrors 
 }
 
 export default function SoportePageContent() {
-  const pathname = usePathname();
   const [brands, setBrands] = useState<MarcaItem[]>([]);
   const [selectedBrandId, setSelectedBrandId] = useState<number | null>(null);
-  const [fallbackPhone, setFallbackPhone] = useState<string | null>(null);
-  const [fallbackEmail, setFallbackEmail] = useState<string | null>(null);
   const [isLoadingBrands, setIsLoadingBrands] = useState(true);
   const [hasBrandError, setHasBrandError] = useState(false);
 
@@ -237,16 +178,11 @@ export default function SoportePageContent() {
       setHasBrandError(false);
 
       try {
-        const [brandsResponse, informacionResponse] = await Promise.all([
-          getAllActiveBrands(),
-          getInformacion().catch(() => null),
-        ]);
+        const brandsResponse = await getAllActiveBrands();
 
         if (isCancelled) return;
 
         setBrands(brandsResponse);
-        setFallbackPhone(informacionResponse?.Informacion?.telefono?.trim() || null);
-        setFallbackEmail(informacionResponse?.Informacion?.correo?.trim() || null);
 
         setSelectedBrandId((previous) => {
           if (previous && brandsResponse.some((item) => item.id === previous)) {
@@ -258,8 +194,6 @@ export default function SoportePageContent() {
       } catch {
         if (isCancelled) return;
         setBrands([]);
-        setFallbackPhone(null);
-        setFallbackEmail(null);
         setSelectedBrandId(null);
         setHasBrandError(true);
       } finally {
@@ -284,19 +218,6 @@ export default function SoportePageContent() {
   const selectedBrandLogo = buildImageUrl(selectedBrand?.imagen_principal);
   const selectedBrandWebsite = normalizeWebsiteUrl(selectedBrand?.url_sitio_web);
   const selectedBrandDescription = sanitizeDbText(selectedBrand?.descripcion);
-  const pageType = getPageTypeFromPath(pathname ?? "/");
-
-  const supportPhone = useMemo(
-    () => extractSupportPhoneFromBrand(selectedBrand, fallbackPhone),
-    [fallbackPhone, selectedBrand],
-  );
-
-  const whatsappUrl = useMemo(
-    () => generateQrValueForBrand(selectedBrand, fallbackPhone),
-    [fallbackPhone, selectedBrand],
-  );
-
-  const qrImageUrl = useMemo(() => buildQrImageUrl(whatsappUrl), [whatsappUrl]);
 
   const updateField = <K extends keyof SoporteFormValues>(
     key: K,
@@ -497,7 +418,7 @@ export default function SoportePageContent() {
                   ) : null}
                 </div>
 
-                <div className="mt-4 grid gap-4 xl:grid-cols-[minmax(0,1fr)_260px] xl:items-stretch">
+                <div className="mt-4">
                   <form
                     onSubmit={handleSubmit}
                     noValidate
@@ -618,73 +539,6 @@ export default function SoportePageContent() {
                       ) : null}
                     </div>
                   </form>
-
-                  <aside className="h-full rounded-[22px] bg-white p-4 shadow-[0_10px_24px_rgba(15,23,42,0.08)]">
-                    <div className="overflow-hidden rounded-[14px]">
-                      <img
-                        src="/assets/heros/soporte_main.png"
-                        alt="Canal de atención de soporte"
-                        title="Soporte DMC"
-                        className="h-[84px] w-full object-cover"
-                      />
-                    </div>
-
-                    <div className="mt-4 rounded-[14px] bg-[#F5F7FA] p-4">
-                      <p className="text-[12px] font-semibold uppercase tracking-[0.08em] text-[#7A8594]">
-                        Soporte WhatsApp
-                      </p>
-
-                      <div className="mt-2 space-y-2 text-[14px] text-[#4E5967]">
-                        <div className="flex items-center gap-2">
-                          <PhoneIcon className="h-4 w-4 text-[#F54029]" />
-                          <span>{supportPhone || "No disponible"}</span>
-                        </div>
-
-                        <div className="flex items-center gap-2">
-                          <MailIcon className="h-4 w-4 text-[#F54029]" />
-                          <span>{fallbackEmail || "No disponible"}</span>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="mt-4 rounded-[14px] border border-[#E4E8EF] p-4 text-center">
-                      <div className="mb-3 inline-flex items-center gap-2 text-[13px] font-medium text-[#5C6776]">
-                        <QrIcon className="h-4 w-4 text-[#F54029]" />
-                        Escanea para chatear por WhatsApp
-                      </div>
-
-                      {qrImageUrl ? (
-                        <img
-                          src={qrImageUrl}
-                          alt={`QR de WhatsApp para ${selectedBrand?.nombre || "soporte"}`}
-                          title="QR de soporte por WhatsApp"
-                          className="mx-auto h-[148px] w-[148px] rounded-[10px] border border-[#E6EAF1] bg-white p-2"
-                        />
-                      ) : (
-                        <div className="mx-auto flex h-[148px] w-[148px] items-center justify-center rounded-[10px] border border-dashed border-[#CCD3DE] bg-[#F5F7FA] text-[13px] text-[#7A8594]">
-                          Sin número disponible
-                        </div>
-                      )}
-
-                      {whatsappUrl ? (
-                        <a
-                          href={whatsappUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          onClick={() =>
-                            trackChatOpen({
-                              chat_provider: "whatsapp",
-                              page_type: pageType,
-                              source_section: "support_whatsapp",
-                            })
-                          }
-                          className="mt-3 inline-flex h-10 items-center justify-center rounded-full border border-[#F54029] px-4 text-[14px] font-semibold text-[#F54029] transition hover:bg-[#F54029] hover:text-white"
-                        >
-                          Abrir WhatsApp
-                        </a>
-                      ) : null}
-                    </div>
-                  </aside>
                 </div>
               </div>
             </div>

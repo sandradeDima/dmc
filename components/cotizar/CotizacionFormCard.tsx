@@ -113,7 +113,8 @@ function validateForm(values: CotizacionFormValues): FormErrors {
     errors.perfil = "Selecciona un perfil de compra.";
   }
 
-  if (!isValidEmail(values.email)) {
+  const email = values.email.trim();
+  if (email.length > 0 && !isValidEmail(email)) {
     errors.email = "Ingresa un correo válido.";
   }
 
@@ -200,7 +201,7 @@ export default function CotizacionFormCard({ embedded = false }: CotizacionFormC
       await postCotizacion({
         nombre_completo: values.nombre_apellido.trim(),
         telefono: values.telefono.trim(),
-        email: values.email.trim(),
+        email: values.email.trim() || null,
         ciudad: values.cliente_exterior ? "" : values.ciudad,
         es_cliente_exterior: values.cliente_exterior,
         tipo_cotizacion: values.perfil as CotizacionPerfil,
@@ -308,7 +309,7 @@ export default function CotizacionFormCard({ embedded = false }: CotizacionFormC
             htmlFor="email"
             className="mb-1 block text-[12px] font-medium text-[#4F5965] sm:text-[13px]"
           >
-            Mail*
+            Mail (opcional)
           </label>
           <input
             id="email"
@@ -318,7 +319,6 @@ export default function CotizacionFormCard({ embedded = false }: CotizacionFormC
               updateField("email", event.target.value.slice(0, MAX_EMAIL_LENGTH))
             }
             maxLength={MAX_EMAIL_LENGTH}
-            required
             className="h-10 w-full rounded-[12px] border border-transparent bg-white px-3.5 text-[13px] text-[#334155] outline-none transition focus:border-[#F54029]/50"
             placeholder="correo@ejemplo.com"
             autoComplete="email"
@@ -416,7 +416,7 @@ export default function CotizacionFormCard({ embedded = false }: CotizacionFormC
                 required
                 className="mt-1 h-4 w-4 accent-[#F54029]"
               />
-              <span>Compras corporativas o personales</span>
+              <span>Comprar para empresa o personal</span>
             </label>
 
             <label className="flex cursor-pointer items-start gap-2 py-1.5 text-[14px] text-[#556070]">
@@ -429,7 +429,7 @@ export default function CotizacionFormCard({ embedded = false }: CotizacionFormC
                 required
                 className="mt-1 h-4 w-4 accent-[#F54029]"
               />
-              <span>Compras para distribución</span>
+              <span>Comprar para reventa</span>
             </label>
 
             {errors.perfil ? (
