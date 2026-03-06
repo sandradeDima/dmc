@@ -7,7 +7,6 @@ import { useEffect, useMemo, useState } from "react";
 import { getInformacion, InformacionItem } from "@/lib/api";
 import {
   getPageTypeFromPath,
-  trackChatOpen,
   trackGenerateLead,
 } from "@/lib/analytics/ga4";
 import {
@@ -40,12 +39,6 @@ function parseHtmlToLines(value: string | null | undefined): string[] {
     .split("\n")
     .map((line) => line.trim().replace(/\s+/g, " "))
     .filter((line) => line.length > 0);
-}
-
-function normalizePhoneForWhatsapp(value: string | null | undefined): string | null {
-  if (!value) return null;
-  const digits = value.replace(/[^\d]/g, "");
-  return digits.length > 0 ? digits : null;
 }
 
 type CtaCardProps = {
@@ -108,7 +101,6 @@ function FindUsSkeleton() {
   return (
     <div className="mt-10 grid gap-8 lg:grid-cols-[470px_minmax(0,1fr)]">
       <div className="space-y-10">
-        <div className="h-[170px] animate-pulse rounded-[34px] bg-slate-300/70 sm:h-[186px] lg:h-[198px]" />
         <div className="h-[170px] animate-pulse rounded-[34px] bg-slate-300/70 sm:h-[186px] lg:h-[198px]" />
       </div>
 
@@ -237,18 +229,6 @@ export default function HomeFindUsSection() {
     };
   }, [informacion?.ubicacion_mapa]);
 
-  const whatsappTarget = useMemo(() => {
-    const normalizedPhone = normalizePhoneForWhatsapp(informacion?.telefono);
-    const message = encodeURIComponent("Hola, quiero contactar con DMC.");
-    if (!normalizedPhone) {
-      return { href: "/soporte", external: false };
-    }
-
-    return {
-      href: `https://wa.me/${normalizedPhone}?text=${message}`,
-      external: true,
-    };
-  }, [informacion?.telefono]);
   const pageType = getPageTypeFromPath(pathname ?? "/");
 
   return (
@@ -278,20 +258,6 @@ export default function HomeFindUsSection() {
                     cta_name: "cotizar",
                     page_type: pageType,
                     source_section: "home_find_us",
-                  })
-                }
-              />
-              <CtaCard
-                titleLineOne="Contáctate Por"
-                titleLineTwo="Whatsapp"
-                imageSrc="/assets/static/whatsapp.png"
-                href={whatsappTarget.href}
-                external={whatsappTarget.external}
-                onClick={() =>
-                  trackChatOpen({
-                    chat_provider: "whatsapp",
-                    page_type: pageType,
-                    source_section: "home_find_us_whatsapp",
                   })
                 }
               />
